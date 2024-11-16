@@ -1,0 +1,49 @@
+<%- include('partials/header')%>
+
+<section class="main">
+    <div class="main-book-subinfo-container">
+        <div class="main-book-subinfo-description">
+            <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="main-book-sub-img">
+            <div class="main-book-subinfo">
+              <h2 class="main-subtitle">Project Mindstep : Book 1</h2>
+              <span class="book-author">Author Steele</span>
+              <span class="book-updates">Updated 0 days ago</span>
+              <div class="main-book-genre-tags">
+                <span>Action</span>
+                <span>Adventure</span>
+                <span>Fantasy</span>
+              </div>
+            </div>
+        </div>
+        <div class="main-book-subinfo-end"></div>
+        <div class="main-book-review-info">
+            <p>List of reviews made by the readers of Project Mindstep : Book 1</p>
+            <div>
+                <span>80 reviews</span>
+                <span>5.0</span>
+            </div>
+        </div>
+        <div class="main-book-comments-container">
+            <form action="/comments" method="POST" class="comment-form">
+              <input type="text" name="author" placeholder="Your name (optional)" maxlength="50" class="comment-author">
+                <div class="star-rating">
+                  <input type="radio" name="rating" value="5" id="5-stars" required>
+                  <label for="5-stars" class="star">&#9733;</label>
+                  <input type="radio" name="rating" value="4" id="4-stars">
+                  <label for="4-stars" class="star">&#9733;</label>
+                  <input type="radio" name="rating" value="3" id="3-stars">
+                  <label for="3-stars" class="star">&#9733;</label>
+                  <input type="radio" name="rating" value="2" id="2-stars">
+                  <label for="2-stars" class="star">&#9733;</label>
+                  <input type="radio" name="rating" value="1" id="1-star">
+                  <label for="1-star" class="star">&#9733;</label>
+                </div>
+              <textarea name="content" placeholder="Add your comment" required class="comment-content"></textarea>
+              <button type="submit" class="comment-submit">Post Comment</button>
+            </form>
+        </div>
+    </div>
+    
+</section>
+
+<%- include('partials/footer')%>

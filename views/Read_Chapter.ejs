@@ -1,0 +1,27 @@
+<%- include('partials/header')%>
+
+<section class="main">
+      <div class="main-book-subinfo-container">
+        <div class="main-book-subinfo-description">
+          <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="main-book-sub-img">
+          <div class="main-book-subinfo">
+            <h2 class="main-subtitle">Project Mindstep : Book 1</h2>
+            <span class="book-author">Author Steele</span>
+            <div class="main-book-genre-tags">
+              <span>Action</span>
+              <span>Adventure</span>
+              <span>Fantasy</span>
+            </div>
+          </div>
+        </div>
+        <div class="main-book-subinfo-end"></div>
+        <div class="main-book-chapter-info">
+          <h3 class="main-subsectitle"> Chapter-<%= chapter.chapter_no %>: <%= chapter.title%></h3>
+          <p><%= chapter.synopsis %></p>
+        </div>
+      </div>
+      <div class="main-book-novelchapter-container">
+          <iframe src="<%= pdfEmbedUrl %>" width="100%" height="1000px" frameborder="1" allowfullscreen></iframe>
+      </div>
+</section>
+<%- include('partials/footer')%>

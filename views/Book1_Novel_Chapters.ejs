@@ -1,0 +1,46 @@
+<%- include('partials/header')%>
+
+<section class="main">
+  <div class="main-book-subinfo-container">
+    <div class="main-book-subinfo-description">
+      <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="main-book-sub-img">
+      <div class="main-book-subinfo">
+        <h2 class="main-subtitle">Project Mindstep : Book 1</h2>
+        <span class="book-author">Author Steele</span>
+        <span class="book-updates">Updated <%= new Date(latestChapter.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></span>
+        <div class="main-book-genre-tags">
+          <span>Action</span>
+          <span>Adventure</span>
+          <span>Fantasy</span>
+        </div>
+      </div>
+    </div>
+    <div class="main-book-subinfo-end"></div>
+    <div class="main-book-chapter-info">
+      <h3 class="main-subsectitle">Project Mindstep : Book-1 Chapter List</h3>
+      <p>List of most recent chapters published for Project Mindstep. A total of <%= totalChapters %> chapters have been released and the
+        release date of the last chapter is <%= new Date(latestChapter.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %>.</p>
+      <div>
+        <h3 class="main-subsectitle">Latest Release</h3>
+        <span>Chapter <%= latestChapter.chapter_no %>: <%= latestChapter.title %></span>
+      </div>
+    </div>
+  </div>
+  <div class="main-book-novelchapter-container">
+    <% allChapters.forEach((chapter) => { %>
+    <div class="main-book-novelchapter-card">
+      <h3 class="main-subsectitle">
+        Chapter-<%= chapter.chapter_no %>
+      </h3>
+      <div class="main-book-novelchapter-info">
+        <a href="/Read_Chapter?chapter_no=<%= chapter.chapter_no %>">
+          <h3 class="main-subsectitle"><%= chapter.title %></h3>
+        </a>
+        <span>Updated <%= chapter.daysAgo %></span>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</section>
+
+<%- include('partials/footer')%>

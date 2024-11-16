@@ -1,0 +1,90 @@
+<%- include('partials/header')%>
+<section class="main">
+  <div class="main-container">
+    <div class="main-book-1-container">
+      <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book-01" class="main-book-1-img">
+      <div class="main-book-1-description">
+        <h2 class="main-subtitle">Project Mindstep : Book-1</h2>
+        <span class="book-author">Author Steele</span>
+        <div class="main-book-1-info">
+          <div class="main-book-1-info-category">
+            <div class="category-container">
+              <span>Chapters</span>
+              <div class="category-subcontainer">
+                <i class="ri-book-open-fill"></i>
+                <span class="category-text">100</span>
+              </div>
+            </div>
+            <div class="category-end-line"></div>
+          </div>
+          <div class="main-book-1-info-category">
+            <div class="category-container">
+              <span>Views</span>
+              <div class="category-subcontainer">
+                <i class="ri-eye-fill"></i>
+                <span class="category-text">1000</span>
+              </div>
+            </div>
+            <div class="category-end-line"></div>
+          </div>
+          <div class="main-book-1-info-category">
+            <div class="category-container">
+              <span>Bookmarks</span>
+              <div class="category-subcontainer">
+                <i class="ri-bookmark-fill"></i>
+                <span class="category-text">200</span>
+              </div>
+            </div>
+            <div class="category-end-line"></div>
+          </div>
+          <div class="main-book-1-info-category">
+            <div class="category-container">
+              <span>Status</span>
+              <span class="category-status">Ongoing</span>
+            </div>
+          </div>
+        </div>
+        <span class="main-book-genre-heading">Categories</span>
+        <div class="main-book-genre-tags">
+          <span>Action</span>
+          <span>Adventure</span>
+          <span>Fantasy</span>
+        </div>
+        <p>Thank you for checking out Book 1!</p>
+        <p>You can access all chapters here and feel free to leave a review if you’d like to share your
+          thoughts. Each chapter also has its own discussion forum, so make sure to engage with the
+          content and connect with other readers. These forums will be moderated, so please respect the
+          rules and treat everyone—both the team and fellow readers—with kindness. We’re excited to
+          have you on this journey!</p>
+      </div>
+    </div>
+    <div class="main-book-1-tabs">
+      <div class="main-book-1-tab-chapters">
+        <div class="main-book-1-tab-chapter-info">
+          <h2>Novel Chapters</h2>
+          <span>Chapter <%= latestChapter.chapter_no %></span>
+          <span>Updated <%= daysAgoText %></span>
+        </div>
+        <a href="/Book1_Novel_Chapters"><i class="ri-arrow-right-s-line"></i></a>
+      </div>
+      <div class="main-book-1-tab-reviews">
+        <div class="main-book-1-tab-review-info">
+          <h2>Users Review</h2>
+          <span>Reviews from 25 readers</span>
+          <span>Average Rating 5.0</span>
+        </div>
+        <a href="/Book1_User_Reviews"><i class="ri-arrow-right-s-line"></i></a>
+      </div>
+    </div>
+    <div class="main-book-1-content">
+      <h2 class="main-subtitle">Synopsis</h2>
+      <p class="tagline">Asher Nephesh has a troubled past—but he can’t remember it.</p>
+      <p>Living in a sterile hospital and plagued by fragmented memories and relentless headaches,
+        Asher feels like something is missing. When he stumbles into a strange, dreamlike world, he
+        begins to uncover dark secrets buried in his forgotten past. The deeper he ventures into the
+        mindscape, the more he realizes—some truths were never meant to be found. Will he confront
+        the past that’s been haunting him, or will it consume him instead?</p>
+    </div>
+  </div>
+</section>
+<%- include('partials/footer')%>

@@ -21,7 +21,15 @@
         </div>
       </div>
       <div class="main-book-novelchapter-container">
-          <iframe src="<%= pdfEmbedUrl %>" width="100%" height="1000px" frameborder="1" allowfullscreen></iframe>
+        <h1><%= chapter.chapter_title %></h1>
+        <% chapter.content.forEach(function(section) { %>
+        <% if (section.type === 'text') { %>
+        <p><%= section.content %></p>
+        <% } else if (section.type === 'image') { %>
+         <img src="<%= section.content %>" alt="Chapter Image" class="chapter-image">
+        <% } %>
+        <% }); %>
       </div>
 </section>
+
 <%- include('partials/footer')%>

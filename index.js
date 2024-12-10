@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 
 //Set view engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '/views'));
+app.set('views', path.join(__dirname, 'views'));
 
 //Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/welcome', (req, res) => {
-  res.render('welcome');
+  res.render(path.join(__dirname, 'views', 'welcome.ejs'));
 });
 
 //Synopsis

@@ -183,7 +183,7 @@ app.get('/book1_user_reviews', async (req, res) => {
     );
     const chapters = chaptersResult.rows;
 
-    res.render('Book1_user_reviews', {
+    res.render('Book1_User_Reviews', {
       lastChapterUpdate,
       totalReviews: total_reviews,
       averageRating: parseFloat(average_rating).toFixed(1),
@@ -388,7 +388,7 @@ app.get('/book1_novel_chapters', async (req, res) => {
 
     const totalChapters = allChapters.length;
     const latestChapter = allChapters[allChapters.length - 1];
-    res.render('Book1_novel_chapters', {
+    res.render('Book1_Novel_Chapters', {
       allChapters,
       totalChapters,
       latestChapter,
@@ -478,7 +478,7 @@ app.get('/read_chapter', async (req, res) => {
       }
     });
 
-    res.render('Read_chapter', {
+    res.render('Read_Chapter', {
       chapter_no: chapterRow.chapter_no,
       title: chapterRow.title,
       time: chapterRow.created_at,
@@ -731,7 +731,7 @@ app.get('/update_news', async (req, res) => {
       return { ...comment, userHasLiked };
     });
 
-    res.render('Update_news', { update, comments });
+    res.render('Update_News', { update, comments });
   } catch (error) {
     console.error('Error fetching update details or comments:', error);
     res

@@ -11,7 +11,7 @@
           <div class="com-update-info">
             <h2 class="com-subtitle-2"><%= update.title %></h2>
             <p><%= update.short_content %></p>
-            <a href="/Update_News?id=<%= update.s_no %>" target="_blank" class="com-link">Read More <i class="ri-arrow-right-s-fill"></i></a>
+            <a href="/update_news?id=<%= update.s_no %>" target="_blank" class="com-link">Read More <i class="ri-arrow-right-s-fill"></i></a>
           </div>
         </div>
         <div class="com-update-subcontent">
@@ -29,45 +29,6 @@
   </div>
 </section>
 <%- include('partials/footer')%>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-  const likeButtons = document.querySelectorAll('.like-btn-container[data-update-id]');
-
-  likeButtons.forEach(button => {
-    button.addEventListener('click', async (event) => {
-      if (!event.target.closest('.like-btn')) return;
-
-      const updateId = button.dataset.updateId;
-
-      if (!updateId) {
-        console.error('No update ID found');
-        return;
-      }
-
-      try {
-        const response = await fetch(`/toggle-update-like/${updateId}`, {
-          method: 'POST'
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          const likesCountElement = button.querySelector('.likes-count');
-          likesCountElement.textContent = data.likes;
-
-          button.classList.toggle('liked', data.liked);
-        } else {
-          alert(data.message || 'Error toggling like');
-        }
-      } catch (error) {
-        console.error('Error toggling like:', error);
-      }
-    });
-  });
-});
-</script>
+<script src="/js/update.js"></script>
+</body>
+</html>

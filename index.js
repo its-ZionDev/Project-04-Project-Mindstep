@@ -41,19 +41,23 @@ client.connect((err) => {
 });
 
 //Routes
+
+//Welcome
 app.get('/', (req, res) => {
-  res.render('Welcome');
+  res.render('welcome');
 });
 
-app.get('/Welcome', (req, res) => {
-  res.render('Welcome');
+app.get('/welcome', (req, res) => {
+  res.render('welcome');
 });
 
-app.get('/Synopsis', (req, res) => {
-  res.render('Synopsis');
+//Synopsis
+app.get('/synopsis', (req, res) => {
+  res.render('synopsis');
 });
 
-app.get('/Read', async (req, res) => {
+//Read
+app.get('/read', async (req, res) => {
   try {
     const latestChapterQuery =
       'SELECT * FROM chapterstest ORDER BY created_at DESC LIMIT 1';
@@ -64,7 +68,7 @@ app.get('/Read', async (req, res) => {
       latestChapter.created_at,
     ).toLocaleDateString();
 
-    res.render('Read', {
+    res.render('read', {
       latestChapter,
       lastUpdatedDate,
     });
@@ -74,15 +78,14 @@ app.get('/Read', async (req, res) => {
   }
 });
 
-app.get('/Book1', async (req, res) => {
+//Book-1
+app.get('/book1', async (req, res) => {
   try {
-    // Query to fetch the latest chapter
     const latestChapterQuery =
       'SELECT * FROM chapterstest ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
     const latestChapter = latestChapterResult.rows[0];
 
-    // Query to count total chapters
     const totalChaptersQuery =
       'SELECT COUNT(*) AS total_chapters FROM chapterstest';
     const totalChaptersResult = await client.query(totalChaptersQuery);
@@ -91,7 +94,6 @@ app.get('/Book1', async (req, res) => {
       10,
     );
 
-    // Directly get current views for Book1
     const getViewsQuery =
       'SELECT total_views FROM book_views WHERE book_name = $1';
     const getViewsResult = await client.query(getViewsQuery, ['Book1']);
@@ -107,7 +109,6 @@ app.get('/Book1', async (req, res) => {
     );
     const { total_reviews, average_rating } = reviewsResult.rows[0];
 
-    // Update the views count in the database
     const updateViewsQuery =
       'UPDATE book_views SET total_views = $1 WHERE book_name = $2';
     const updateResult = await client.query(updateViewsQuery, [
@@ -115,7 +116,6 @@ app.get('/Book1', async (req, res) => {
       'Book1',
     ]);
 
-    // Calculate days ago for the latest chapter
     const daysAgo = Math.floor(
       (Date.now() - new Date(latestChapter.created_at).getTime()) /
         (1000 * 60 * 60 * 24),
@@ -123,7 +123,7 @@ app.get('/Book1', async (req, res) => {
     const daysAgoText =
       daysAgo === 0 ? 'today' : `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
 
-    res.render('Book1', {
+    res.render('book1', {
       totalChapters,
       latestChapter,
       daysAgoText,
@@ -137,7 +137,8 @@ app.get('/Book1', async (req, res) => {
   }
 });
 
-app.get('/Book1_User_Reviews', async (req, res) => {
+//Book-1 - User Reviews
+app.get('/book1_user_reviews', async (req, res) => {
   try {
     const lastChapterUpdateResult = await client.query(
       `SELECT created_at FROM chapterstest ORDER BY created_at DESC LIMIT 1`,
@@ -150,7 +151,6 @@ app.get('/Book1_User_Reviews', async (req, res) => {
     );
     const { total_reviews, average_rating } = reviewsResult.rows[0];
 
-    // Fetch reviews with all details from chapterreviews table
     const reviewsQuery = `
       SELECT s_no, chapter_no, name, review, stars, likes, created_at 
       FROM chapterreviews 
@@ -158,13 +158,11 @@ app.get('/Book1_User_Reviews', async (req, res) => {
     `;
     const reviewsResultWithLikes = await client.query(reviewsQuery);
 
-    // Map userHasLiked for each review based on cookies
     const reviews = [];
     for (const review of reviewsResultWithLikes.rows) {
       const userHasLiked =
         req.cookies[`liked_review_${review.s_no}`] === 'true';
 
-      // Fetch only replies from the review_replies table based on review_s_no
       const repliesQuery = `
         SELECT id, review_s_no, name, content, likes, created_at
         FROM review_replies 
@@ -176,7 +174,7 @@ app.get('/Book1_User_Reviews', async (req, res) => {
       reviews.push({
         ...review,
         userHasLiked,
-        replies: repliesResult.rows, // Only review replies should be included
+        replies: repliesResult.rows, 
       });
     }
 
@@ -185,8 +183,7 @@ app.get('/Book1_User_Reviews', async (req, res) => {
     );
     const chapters = chaptersResult.rows;
 
-    // Render template with reviews and replies
-    res.render('book1_User_Reviews', {
+    res.render('book1_user_reviews', {
       lastChapterUpdate,
       totalReviews: total_reviews,
       averageRating: parseFloat(average_rating).toFixed(1),
@@ -199,7 +196,7 @@ app.get('/Book1_User_Reviews', async (req, res) => {
   }
 });
 
-app.post('/Book1/reviews', async (req, res) => {
+app.post('/book1/reviews', async (req, res) => {
   const { chapter, author, content, stars } = req.body;
 
   try {
@@ -215,7 +212,7 @@ app.post('/Book1/reviews', async (req, res) => {
   }
 });
 
-app.post('/toggle-review-like/:s_no', async (req, res) => {
+app.post('/book1/reviews/like/:s_no', async (req, res) => {
   const { s_no } = req.params;
 
   if (!s_no || isNaN(s_no)) {
@@ -267,7 +264,54 @@ app.post('/toggle-review-like/:s_no', async (req, res) => {
   }
 });
 
-app.post('/toggle-review-reply-like/:id', async (req, res) => {
+app.post('/book1/reviews/reply', async (req, res) => {
+  const { review_s_no, parent_id, name, content } = req.body;
+
+  if (!review_s_no || !name || !content) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields: review_s_no, name, or content.',
+    });
+  }
+
+  const reviewSNo = parseInt(review_s_no, 10);
+  const parentId = parent_id ? parseInt(parent_id, 10) : null;
+
+  if (isNaN(reviewSNo) || (parentId !== null && isNaN(parentId))) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid review_s_no or parent_id.',
+    });
+  }
+
+  try {
+    const insertReplyQuery = `
+      INSERT INTO review_replies (review_s_no, parent_id, name, content, created_at) 
+      VALUES ($1, $2, $3, $4, NOW()) 
+      RETURNING id, review_s_no, parent_id, name, content, created_at
+    `;
+    const replyResult = await client.query(insertReplyQuery, [
+      reviewSNo,
+      parentId,
+      name,
+      content,
+    ]);
+
+    const newReply = replyResult.rows[0];
+    return res.status(200).json({
+      success: true,
+      reply: newReply,
+    });
+  } catch (error) {
+    console.error('Error posting review reply:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Error posting review reply. Please try again later.',
+    });
+  }
+});
+
+app.post('/book1/reviews/reply/like/:id', async (req, res) => {
   const { id } = req.params;
 
   if (!id || isNaN(id)) {
@@ -319,54 +363,8 @@ app.post('/toggle-review-reply-like/:id', async (req, res) => {
   }
 });
 
-app.post('/post-review-reply', async (req, res) => {
-  const { review_s_no, parent_id, name, content } = req.body;
-
-  if (!review_s_no || !name || !content) {
-    return res.status(400).json({
-      success: false,
-      message: 'Missing required fields: review_s_no, name, or content.',
-    });
-  }
-
-  const reviewSNo = parseInt(review_s_no, 10);
-  const parentId = parent_id ? parseInt(parent_id, 10) : null;
-
-  if (isNaN(reviewSNo) || (parentId !== null && isNaN(parentId))) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid review_s_no or parent_id.',
-    });
-  }
-
-  try {
-    const insertReplyQuery = `
-      INSERT INTO review_replies (review_s_no, parent_id, name, content, created_at) 
-      VALUES ($1, $2, $3, $4, NOW()) 
-      RETURNING id, review_s_no, parent_id, name, content, created_at
-    `;
-    const replyResult = await client.query(insertReplyQuery, [
-      reviewSNo,
-      parentId,
-      name,
-      content,
-    ]);
-
-    const newReply = replyResult.rows[0];
-    return res.status(200).json({
-      success: true,
-      reply: newReply,
-    });
-  } catch (error) {
-    console.error('Error posting review reply:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Error posting review reply. Please try again later.',
-    });
-  }
-});
-
-app.get('/Book1_Novel_Chapters', async (req, res) => {
+//Book-1 - Novel Chapters List
+app.get('/book1_novel_chapters', async (req, res) => {
   try {
     const allChaptersQuery =
       'SELECT * FROM chapterstest ORDER BY created_at DESC';
@@ -390,7 +388,7 @@ app.get('/Book1_Novel_Chapters', async (req, res) => {
 
     const totalChapters = allChapters.length;
     const latestChapter = allChapters[allChapters.length - 1];
-    res.render('Book1_Novel_Chapters', {
+    res.render('book1_novel_chapters', {
       allChapters,
       totalChapters,
       latestChapter,
@@ -401,7 +399,8 @@ app.get('/Book1_Novel_Chapters', async (req, res) => {
   }
 });
 
-app.get('/Read_Chapter', async (req, res) => {
+//Book-1 - Read Novel Chapter
+app.get('/read_chapter', async (req, res) => {
   const chapterNo = parseInt(req.query.chapter_no, 10);
 
   if (!chapterNo) {
@@ -448,7 +447,6 @@ app.get('/Read_Chapter', async (req, res) => {
   ORDER BY created_at ASC
 `;
 
-    // Fetch Replies (Replies have a parent_id)
     const repliesQuery = `
   SELECT * FROM chaptercomments
   WHERE chapter_no = $1
@@ -461,17 +459,14 @@ app.get('/Read_Chapter', async (req, res) => {
       client.query(repliesQuery, [chapterNo]),
     ]);
 
-    // Prepare combined comments structure
     const combinedComments = [];
 
-    // Add top-level comments to combinedComments array
     commentsResult.rows.forEach((comment) => {
       const userHasLiked = req.cookies[`liked_${comment.id}`] === 'true';
       comment.replies = [];
       combinedComments.push({ ...comment, userHasLiked });
     });
 
-    // Add replies with liked status
     repliesResult.rows.forEach((reply) => {
       const userHasLiked = req.cookies[`liked_${reply.id}`] === 'true'; 
       const parentComment = combinedComments.find(
@@ -483,9 +478,7 @@ app.get('/Read_Chapter', async (req, res) => {
       }
     });
 
-    // Now `combinedComments` contains comments with their replies nested
-    // Pass this to the template for rendering
-    res.render('Read_Chapter', {
+    res.render('read_chapter', {
       chapter_no: chapterRow.chapter_no,
       title: chapterRow.title,
       time: chapterRow.created_at,
@@ -493,7 +486,7 @@ app.get('/Read_Chapter', async (req, res) => {
       chapter: chapterContent,
       prevChapterNo,
       nextChapterNo,
-      comments: combinedComments, // Nested comments and replies
+      comments: combinedComments, 
     });
   } catch (err) {
     console.error('Error fetching chapter:', err.message);
@@ -501,7 +494,7 @@ app.get('/Read_Chapter', async (req, res) => {
   }
 });
 
-app.post('/post-comment', async (req, res) => {
+app.post('/read_chapter/comment', async (req, res) => {
   const { name, content, chapter_no } = req.body;
 
   if (!name || !content || !chapter_no) {
@@ -528,7 +521,55 @@ app.post('/post-comment', async (req, res) => {
   }
 });
 
-app.post('/toggle-like/:id', async (req, res) => {
+app.post('/read_chapter/reply', async (req, res) => {
+  const { parent_id, name, content, chapter_no } = req.body;
+
+  if (!parent_id || !name || !content || !chapter_no) {
+    return res.status(400).json({
+      success: false,
+      message:
+        'Missing required fields: parent_id, name, content, or chapter_no.',
+    });
+  }
+
+  const parentId = parseInt(parent_id, 10);
+  const chapterNo = parseInt(chapter_no, 10);
+
+  if (isNaN(parentId) || isNaN(chapterNo)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid parent_id or chapter_no.',
+    });
+  }
+
+  try {
+    const insertReplyQuery = `
+      INSERT INTO chaptercomments (parent_id, name, content, chapter_no, created_at) 
+      VALUES ($1, $2, $3, $4, NOW()) 
+      RETURNING id, parent_id, name, content, chapter_no, created_at
+    `;
+    const replyResult = await client.query(insertReplyQuery, [
+      parentId, 
+      name, 
+      content, 
+      chapterNo, 
+    ]);
+
+    const newReply = replyResult.rows[0];
+    return res.status(200).json({
+      success: true,
+      reply: newReply,
+    });
+  } catch (error) {
+    console.error('Error posting reply:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Error posting reply. Please try again later.',
+    });
+  }
+});
+
+app.post('/read_chapter/like/:id', async (req, res) => {
   const { id } = req.params;
 
   if (!id || isNaN(id)) {
@@ -580,77 +621,35 @@ app.post('/toggle-like/:id', async (req, res) => {
   }
 });
 
-app.post('/post-reply', async (req, res) => {
-  const { parent_id, name, content, chapter_no } = req.body;
-
-  if (!parent_id || !name || !content || !chapter_no) {
-    return res.status(400).json({
-      success: false,
-      message:
-        'Missing required fields: parent_id, name, content, or chapter_no.',
-    });
-  }
-
-  // Ensure parent_id and chapter_no are integers
-  const parentId = parseInt(parent_id, 10);
-  const chapterNo = parseInt(chapter_no, 10);
-
-  if (isNaN(parentId) || isNaN(chapterNo)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid parent_id or chapter_no.',
-    });
-  }
-
-  try {
-    // Insert the reply into the database with chapter_no
-    const insertReplyQuery = `
-      INSERT INTO chaptercomments (parent_id, name, content, chapter_no, created_at) 
-      VALUES ($1, $2, $3, $4, NOW()) 
-      RETURNING id, parent_id, name, content, chapter_no, created_at
-    `;
-    const replyResult = await client.query(insertReplyQuery, [
-      parentId, // parent_id
-      name, // name
-      content, // content
-      chapterNo, // chapter_no
-    ]);
-
-    // Respond with the newly created reply
-    const newReply = replyResult.rows[0];
-    return res.status(200).json({
-      success: true,
-      reply: newReply,
-    });
-  } catch (error) {
-    console.error('Error posting reply:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Error posting reply. Please try again later.',
-    });
-  }
-});
-
-app.get('/Update', async (req, res) => {
+//Update
+app.get('/update', async (req, res) => {
   try {
     const result = await client.query(
       'SELECT * FROM community_updates ORDER BY created_at DESC',
     );
+
     const updates = result.rows.map((update) => {
+      const userHasLiked =
+        req.cookies[`liked_update_${update.s_no}`] === 'true';
       update.short_content =
         update.content.length > 100
           ? update.content.slice(0, 100) + '...'
           : update.content;
-      return update;
+
+      return {
+        ...update,
+        userHasLiked,
+      };
     });
-    res.render('Update', { updates });
+
+    res.render('update', { updates });
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
 });
 
-app.post('/toggle-update-like/:s_no', async (req, res) => {
+app.post('/update/like/:s_no', async (req, res) => {
   const { s_no } = req.params;
 
   if (!s_no || isNaN(s_no)) {
@@ -702,16 +701,15 @@ app.post('/toggle-update-like/:s_no', async (req, res) => {
   }
 });
 
-app.get('/Update_News', async (req, res) => {
+//Update News
+app.get('/update_news', async (req, res) => {
   const { id } = req.query;
 
-  // Validate the `id` parameter
   if (!id || isNaN(id)) {
     return res.status(400).send('Invalid or missing update identifier');
   }
 
   try {
-    // Fetch the update details from `community_updates`
     const updateResult = await client.query(
       'SELECT s_no, title, image, content FROM community_updates WHERE s_no = $1',
       [id],
@@ -723,16 +721,17 @@ app.get('/Update_News', async (req, res) => {
 
     const update = updateResult.rows[0];
 
-    // Use `id` as `post_id` to fetch comments for this update from `community_updates_comments`
     const commentsResult = await client.query(
-      'SELECT post_id, name, content, likes, created_at FROM community_updates_comments WHERE post_id = $1 ORDER BY created_at DESC',
+      'SELECT s_no, post_id, name, content, likes, created_at FROM community_updates_comments WHERE post_id = $1 ORDER BY created_at DESC',
       [id],
     );
 
-    const comments = commentsResult.rows;
+    const comments = commentsResult.rows.map((comment) => {
+      const userHasLiked = req.cookies[`liked_post_${comment.s_no}`] === 'true'; 
+      return { ...comment, userHasLiked };
+    });
 
-    // Render the page with update details and associated comments
-    res.render('Update_News', { update, comments });
+    res.render('update_news', { update, comments });
   } catch (error) {
     console.error('Error fetching update details or comments:', error);
     res
@@ -741,10 +740,9 @@ app.get('/Update_News', async (req, res) => {
   }
 });
 
-app.post('/post-update-comment', async (req, res) => {
+app.post('/update_news/comment', async (req, res) => {
   const { name, content, post_id } = req.body;
 
-  // Check if the required fields are missing
   if (!name || !content || !post_id) {
     return res
       .status(400)
@@ -764,6 +762,53 @@ app.post('/post-update-comment', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error posting comment' });
   }
 });
+
+app.post('/update_news/like/:commentId', async (req, res) => {
+  const { commentId } = req.params;
+
+  if (!commentId || isNaN(commentId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Invalid comment ID' });
+  }
+
+  try {
+    const likeResult = await client.query(
+      'SELECT likes FROM community_updates_comments WHERE s_no = $1',
+      [commentId],
+    );
+
+    if (likeResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Comment not found' });
+    }
+
+    const currentLikes = likeResult.rows[0].likes || 0;
+
+    const userHasLiked = req.cookies[`liked_comment_${commentId}`] === 'true';
+
+    let updatedLikes;
+    if (userHasLiked) {
+      updatedLikes = currentLikes - 1;
+      res.clearCookie(`liked_comment_${commentId}`);
+    } else {
+      updatedLikes = currentLikes + 1;
+      res.cookie(`liked_comment_${commentId}`, true, { httpOnly: true });
+    }
+
+    await client.query(
+      'UPDATE community_updates_comments SET likes = $1 WHERE s_no = $2',
+      [updatedLikes, commentId],
+    );
+
+    res.json({ success: true, likes: updatedLikes, liked: !userHasLiked });
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({ success: false, message: 'Error toggling like' });
+  }
+});
+
 
 //Port
 app.listen(port, () => {

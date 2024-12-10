@@ -54,7 +54,7 @@ body {
   font-family: var(--font-default);
   font-size: var(--regular-font-size);
   background: linear-gradient(0deg, #2d1b47 20%, #122a4b 100%);
-  background-repeat: no-repeat;
+  background-repeat: no-repeat;      
 }
 
 h1,
@@ -463,6 +463,7 @@ video{
   font-size: var(--font-size-regular);
   font-weight: var(--font-w-regular);
   margin: 1.25rem 0;
+  line-height: 2;
 }
 
 .synopsis-team-text span {
@@ -538,6 +539,7 @@ video{
   width: 360px;
   height: 540px;
   margin-bottom: 1rem;
+  border-radius: .5rem;
 }
 
 /**************************************************/
@@ -554,6 +556,7 @@ video{
 .book-1-img {
   width: 460px;
   height: 680px;
+  border-radius: .5rem;
 }
 
 .book-subtitle {
@@ -727,6 +730,7 @@ video{
 .book-subinfo-card {
   padding: 2rem;
   background-color: var(--block-container);
+  border-radius: .5rem;
 }
 
 .book-subtitle-2 {
@@ -752,6 +756,7 @@ video{
 .book-sub-img {
   width: 100px;
   height: 150px;
+  border-radius: .5rem;
 }
 
 .book-subinfo {
@@ -804,6 +809,7 @@ video{
   margin: 2rem 0;
   padding: 1rem;
   background-color: var(--block-container);
+  border-radius: .5rem;
 }
 
 .book-novelchapter-list::-webkit-scrollbar {
@@ -918,6 +924,7 @@ input:-webkit-autofill:active {
   background-color: var(--block-container);
   margin-bottom: 1.5rem;
   padding: 2rem;
+  border-radius: .5rem;
 }
 
 .reply {
@@ -1117,6 +1124,7 @@ input:-webkit-autofill:active {
   background-color: var(--block-container);
   padding: 2rem;
   margin-bottom: 2rem;
+  border-radius:.5rem;
 }
 
 .main-book-review-card .review-card-header {
@@ -1353,6 +1361,7 @@ input:-webkit-autofill:active {
   background-color: var(--block-container);
   padding: 1.5rem;
   margin-bottom: 2rem;
+  border-radius: .5rem;
 }
 
 .com-update-content {
@@ -1365,6 +1374,7 @@ input:-webkit-autofill:active {
   width: 500px;
   height: 175px;
   object-fit: cover;
+  border-radius: .5rem;
 }
 
 .com-update-content .slice-content {
@@ -1450,9 +1460,26 @@ input:-webkit-autofill:active {
   font-weight: var(--font-w-bold);
 }
 
+.com-update-news-container{
+  margin: 2rem 0;
+}
+
+.com-update-news-card{
+  width: 100%;
+  height: auto;
+  background-color: var(--block-container);
+  padding: 2rem 2rem 2.75rem 2rem;
+  border-radius: .5rem;
+}
+
+.com-update-news-card .com-title{
+  margin-top: 0;
+}
+
 .com-news-img {
   width: 100%;
   height: auto;
+  border-radius: .5rem;
 }
 
 .com-news-content {
@@ -1462,10 +1489,6 @@ input:-webkit-autofill:active {
   color: var(--text-secondary);
   line-height: 1.75;
   margin: 2rem 0;
-}
-
-.com-comments-container {
-  margin-bottom: 2rem;
 }
 
 .com-comments-container h2 {
@@ -1602,6 +1625,14 @@ input:-webkit-autofill:active {
   }
 
   .book-chapter-container {
+    padding: 0 2rem;
+  }
+
+  .com-update-news-card{
+    padding: 2rem 0 2.75rem 0;
+  }
+
+  .com-update-news-container{
     padding: 0 2rem;
   }
 
@@ -1778,6 +1809,7 @@ input:-webkit-autofill:active {
     background-color: var(--block-container);
     padding: 1.5rem;
     margin-bottom: 1rem;
+    border-radius: .5rem;
   }
 
   .book-genre .book-genre-heading {
@@ -1817,7 +1849,7 @@ input:-webkit-autofill:active {
   }
 
   .book-subinfo-card {
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
   }
 
   .book-subinfo-card .book-genre-tags {
@@ -1909,6 +1941,11 @@ input:-webkit-autofill:active {
 
   .com-update-card{
     margin-bottom: 1rem;
+  }
+
+  .com-update-news-container{
+    padding: 0 1rem;
+    margin: 1rem 0;
   }
 
   .com-title,

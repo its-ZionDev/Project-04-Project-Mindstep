@@ -2,33 +2,35 @@
 
 <section class="main">
   <div class="book-subinfo-container">
-      <div class="book-subinfo-card">
-        <div class="book-subinfo-description">
-          <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="book-sub-img">
-          <div class="book-subinfo">
-            <h2 class="book-subtitle">Project Mindstep : Book 1</h2>
-            <div class="book-details">
-              <span class="book-author">Author Steele</span>
-              <span class="book-updates">Updated <%= new Date(latestChapter.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></span>
-            </div>
-            <div class="book-genre-tags">
-              <span>Action</span>
-              <span>Adventure</span>
-              <span>Fantasy</span>
-            </div>
+    <div class="book-subinfo-card">
+      <div class="book-subinfo-description">
+        <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="book-sub-img">
+        <div class="book-subinfo">
+          <h2 class="book-subtitle">Project Mindstep : Book 1</h2>
+          <div class="book-details">
+            <span class="book-author">Author Steele</span>
+            <span class="book-updates">Updated <%= new Date(latestChapter.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></span>
           </div>
-        </div>
-        <div class="book-subinfo-end"></div>
-        <div class="book-chapter-info">
-          <h3 class="book-subtitle-2">Project Mindstep : Book-1 Chapter List</h3>
-          <p>List of most recent chapters published for Project Mindstep. A total of <%= totalChapters %> chapters have been released and the
-            release date of the last chapter is <%= new Date(latestChapter.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %>.</p>
-          <div>
-            <h3 class="book-subtitle-2">Latest Release</h3>
-            <a href="/Read_Chapter?chapter_no=<%= latestChapter.chapter_no %>"><span>Chapter <%= latestChapter.chapter_no %>: <%= latestChapter.title %></span></a>
+          <div class="book-genre-tags">
+            <span>Mystery</span>
+            <span>Suspense</span>
+            <span>Thriller</span>
+            <span>Action</span>
+            <span>Pyschological</span>
           </div>
         </div>
       </div>
+      <div class="book-subinfo-end"></div>
+      <div class="book-chapter-info">
+        <h3 class="book-subtitle-2">Project Mindstep : Book-1 Chapter List</h3>
+        <p>List of most recent chapters published for Project Mindstep. A total of <%= totalChapters %> chapters have been released and the
+          release date of the last chapter is <%= new Date(latestChapter.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %>.</p>
+        <div>
+          <h3 class="book-subtitle-2">Latest Release</h3>
+          <a href="/Read_Chapter?chapter_no=<%= latestChapter.chapter_no %>"><span>Chapter <%= latestChapter.chapter_no %>: <%= latestChapter.title %></span></a>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="book-novelchapter-container">
     <div class="book-novelchapter-list">
@@ -48,5 +50,6 @@
     </div>
   </div>
 </section>
-
 <%- include('partials/footer')%>
+</body>
+</html>

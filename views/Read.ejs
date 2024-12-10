@@ -2,27 +2,27 @@
 
 <section class="main">
   <div class="main-container">
-    <h1 class="main-title">The mind holds secrets-will you take the plunge?</h1>
-    <p>Explore the full series and stay up to date with the latest chapter releases. More stories may be coming soon, so keep your eyes peeled!</p>
+    <h1 class="read-title">The mind holds secrets-will you take the plunge?</h1>
+    <p class="read-subtext">Explore the full series and stay up to date with the latest chapter releases. More stories may be coming soon, so keep your eyes peeled!</p>
     <div class="main-book-container">
       <div class="main-book-card">
-        <img src="/assets/images/Mindstep Cover.png" alt="Mindstep Book Illustration" class="main-book-img">
         <a href="/book1">
-          <h2 class="main-subtitle">Book-1</h2>
+          <img src="/assets/images/Mindstep Cover.png" alt="Mindstep Book Illustration" class="main-book-img">
+          <h2 class="read-subtitle">Book-1</h2>
         </a>
-        <p>Last Updated: <%= lastUpdatedDate %></p>
+        <p class="book-update-time">Last Updated: <%= new Date(lastUpdatedDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></p>
       </div>
       <div class="main-book-card">
-        <img src="/assets/images/Mindstep Cover.png" alt="Mindstep Book Illustration" class="main-book-img">
-        <a href="">
-            <h2 class="main-subtitle">Book-2</h2>
+        <a href="" class="disabled">
+          <img src="/assets/images/Mindstep Cover.png" alt="Mindstep Book Illustration" class="main-book-img">
+          <h2 class="read-subtitle">Book-2</h2>
         </a>
         <p>Coming Soon...</p>
       </div>
-      <div class="main-book-card">
-        <img src="/assets/images/Mindstep Cover.png" alt="Mindstep Book Illustration" class="main-book-img">
-        <a href="">
-            <h2 class="main-subtitle">Book-3</h2>
+      <div class="main-book-card last">
+        <a href="" class="disabled">
+          <img src="/assets/images/Mindstep Cover.png" alt="Mindstep Book Illustration" class="main-book-img">
+          <h2 class="read-subtitle">Book-3</h2>
         </a>
         <p>Coming Soon...</p>
       </div>

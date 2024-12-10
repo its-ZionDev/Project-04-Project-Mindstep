@@ -1,0 +1,67 @@
+<div class="comment" id="comment-<%= comment.id %>">
+  <div class="comment-container">
+    <div class="comment-header">
+      <span class="comment-author"><%= comment.name %></span>
+      <span class="comment-time">
+        <%= new Date(comment.created_at).toLocaleDateString('en-US', {
+          month: 'short',
+          day: '2-digit',
+          year: 'numeric'
+        }) %>
+      </span>
+    </div>
+    <div class="comment-content">
+      <p><%= comment.content %></p>
+    </div>
+    <div class="comment-actions">
+      <button class="reply-btn" data-comment-id="<%= comment.id %>">Reply</button>
+      <div class="like-btn-container <%= comment.userHasLiked ? 'liked' : '' %>" data-comment-id="<%= comment.id %>">
+        <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+        <span class="like-count"><%= comment.likes %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reply form for the comment -->
+  <div class="reply-form-container" id="reply-form-<%= comment.id %>">
+    <form class="reply-form">
+      <div class="reply-group">
+        <input type="text" id="name" name="name" placeholder="Your Name" maxlength="20" required>
+      </div>
+      <div class="reply-group">
+        <textarea name="content" placeholder="Write your reply..." rows="3"></textarea>
+      </div>
+      <button type="submit" class="post-reply-btn">Reply</button>
+    </form>
+  </div>
+
+  <div class="replies">
+    <% if (comment.replies && comment.replies.length > 0) { %>
+    <% comment.replies.forEach(reply => { %>
+    <div class="reply" id="reply-<%= reply.id %>">
+      <div class="reply-container">
+        <div class="reply-header">
+          <span class="reply-author"><%= reply.name %></span>
+          <span class="reply-time">
+            <%= new Date(reply.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: '2-digit',
+                  year: 'numeric'
+                }) %>
+          </span>
+        </div>
+        <div class="reply-content">
+          <p><%= reply.content %></p>
+        </div>
+        <div class="reply-actions">
+          <div class="like-btn-container <%= reply.userHasLiked ? 'liked' : '' %>" data-reply-id="<%= reply.id %>">
+            <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+            <span class="like-count"><%= reply.likes %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+    <% } %>
+  </div>
+</div>

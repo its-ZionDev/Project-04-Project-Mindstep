@@ -1,49 +1,388 @@
 <%- include('partials/header')%>
 
 <section class="main">
-    <div class="main-book-subinfo-container">
-        <div class="main-book-subinfo-description">
-            <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="main-book-sub-img">
-            <div class="main-book-subinfo">
-              <h2 class="main-subtitle">Project Mindstep : Book 1</h2>
-              <span class="book-author">Author Steele</span>
-              <span class="book-updates">Updated 0 days ago</span>
-              <div class="main-book-genre-tags">
-                <span>Action</span>
-                <span>Adventure</span>
-                <span>Fantasy</span>
+  <div class="book-subinfo-container">
+    <div class="book-subinfo-card">
+      <div class="book-subinfo-description">
+        <img src="/assets/images/Mindstep Cover.png" alt="Project Mindstep Book 1" class="book-sub-img">
+        <div class="book-subinfo">
+          <h2 class="book-subtitle">Project Mindstep : Book 1</h2>
+          <div class="book-details">
+            <span class="book-author">Author Steele</span>
+            <span class="book-updates">Updated on <%= new Date(lastChapterUpdate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></span>
+          </div>
+          <div class="book-genre-tags">
+            <span>Action</span>
+            <span>Adventure</span>
+            <span>Fantasy</span>
+          </div>
+        </div>
+      </div>
+      <div class="book-review-info">
+        <div>
+          <span><%= totalReviews %> reviews from the menders community</span>
+          <span> at an average rating of <%= averageRating %></span>
+        </div>
+      </div>
+      <div class="book-subinfo-end"></div>
+      <div class="main-book-review-container">
+        <form action="/comments" method="POST" class="review-form">
+          <h2 class="book-subtitle">Share your Review on Book 1 with fellow menders</h2>
+          <div class="review-rate-info">
+            <div class="review-rate">
+              <span class="review-header">How was your Experience?</span>
+              <div class="review-star-rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
               </div>
             </div>
-        </div>
-        <div class="main-book-subinfo-end"></div>
-        <div class="main-book-review-info">
-            <p>List of reviews made by the readers of Project Mindstep : Book 1</p>
-            <div>
-                <span>80 reviews</span>
-                <span>5.0</span>
+            <div class="review-chapter-list">
+              <select name="chapter" id="chapter-select" required>
+                <option value="" disabled selected>Select a Chapter</option>
+                <% chapters.forEach((chapter) => { %>
+                <option value="<%= chapter.chapter_no %>">Chapter <%= chapter.chapter_no %>: <%= chapter.title %></option>
+                <% }); %>
+              </select>
             </div>
-        </div>
-        <div class="main-book-comments-container">
-            <form action="/comments" method="POST" class="comment-form">
-              <input type="text" name="author" placeholder="Your name (optional)" maxlength="50" class="comment-author">
-                <div class="star-rating">
-                  <input type="radio" name="rating" value="5" id="5-stars" required>
-                  <label for="5-stars" class="star">&#9733;</label>
-                  <input type="radio" name="rating" value="4" id="4-stars">
-                  <label for="4-stars" class="star">&#9733;</label>
-                  <input type="radio" name="rating" value="3" id="3-stars">
-                  <label for="3-stars" class="star">&#9733;</label>
-                  <input type="radio" name="rating" value="2" id="2-stars">
-                  <label for="2-stars" class="star">&#9733;</label>
-                  <input type="radio" name="rating" value="1" id="1-star">
-                  <label for="1-star" class="star">&#9733;</label>
-                </div>
-              <textarea name="content" placeholder="Add your comment" required class="comment-content"></textarea>
-              <button type="submit" class="comment-submit">Post Comment</button>
-            </form>
-        </div>
+          </div>
+          <input type="text" name="author" placeholder="Your Name" maxlength="20" class="review-author" required>
+          <textarea name="content" placeholder="Share your review..." required class="review-content"></textarea>
+          <button type="submit" class="review-btn">Send Review</button>
+        </form>
+      </div>
     </div>
-    
+  </div>
+  <div class="main-book-reviews">
+    <% reviews.forEach(review => { %>
+    <div class="main-book-review-card">
+      <div class="review-card-header">
+        <div class="review-author-info">
+          <span class="review-author"><%= review.name %></span>
+          <span class="review-category">Reader</span>
+        </div>
+        <div class="review-info">
+          <span class="review-chapter">Chapter <%= review.chapter_no %></span>
+          <span class="review-time"><%= new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></span>
+        </div>
+      </div>
+      <div class="review-star">
+        <% for (let i = 0; i < parseInt(review.stars); i++) { %>
+        <i class="fa-solid fa-star"></i>
+        <% } %>
+        <% for (let i = parseInt(review.stars); i < 5; i++) { %>
+        <i class="fa-solid fa-star" style="color: #a1a3b3;"></i>
+        <% } %>
+      </div>
+      <div class="review-content">
+        <p><%= review.review %></p>
+      </div>
+      <div class="review-actions">
+        <div class="reply-btn-container">
+          <i class="fa-solid fa-comments"></i>
+          <button class="reply-btn" data-review-s_no="<%= review.s_no %>">Reply</button>
+        </div>
+        <div class="like-btn-container <%= review.userHasLiked ? 'liked' : '' %>" data-review-s-no="<%= review.s_no %>">
+          <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+          <span class="like-count"><%= review.likes %></span>
+        </div>
+      </div>
+      <div class="reply-form-container" id="reply-form-<%= review.s_no %>" data-review-s-no="<%= review.s_no %>">
+        <form class="reply-form">
+          <div class="reply-group">
+            <input type="text" id="name" name="name" placeholder="Your Name" maxlength="20" required>
+          </div>
+          <div class="reply-group">
+            <textarea name="content" placeholder="Write your reply..." rows="3"></textarea>
+          </div>
+          <button type="submit" class="post-reply-btn">Reply</button>
+        </form>
+      </div>
+      <div class="replies">
+        <% if (review.replies && review.replies.length > 0) { %>
+        <% review.replies.forEach(reply => { %>
+        <div class="reply" id="reply-<%= reply.id %>">
+          <div class="reply-container">
+            <div class="reply-header">
+              <span class="reply-author"><%= reply.name %></span>
+              <span class="reply-time">
+                <%= new Date(reply.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      year: 'numeric'
+                    }) %>
+              </span>
+            </div>
+            <div class="reply-content">
+              <p><%= reply.content %></p>
+            </div>
+            <div class="reply-actions">
+              <div class="like-btn-container <%= reply.userHasLiked ? 'liked' : '' %>" data-reply-id="<%= reply.id %>">
+                <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+                <span class="like-count"><%= reply.likes %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% }) %>
+        <% } %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
 </section>
 
 <%- include('partials/footer')%>
+
+<script>
+  const stars = document.querySelectorAll('.review-star-rating i');
+
+  stars.forEach((star, index1) => {
+    star.addEventListener('click', () => {
+      stars.forEach((star, index2) => {
+        index2 <= index1 ? star.classList.add('active') : star.classList.remove('active');
+      });
+    });
+  });
+</script>
+
+<script>
+  function resetStarRating() {
+    document.querySelectorAll('.review-star-rating i').forEach((star) => {
+      star.classList.remove('active');
+    });
+  }
+</script>
+
+<script>
+  document.querySelector('.review-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const reviewData = {
+      chapter: formData.get('chapter'),
+      author: formData.get('author'),
+      content: formData.get('content'),
+      stars: document.querySelectorAll('.review-star-rating i.active').length
+    };
+
+    try {
+      const response = await fetch('/Book1/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(reviewData)
+      });
+
+      if (!response.ok) throw new Error('Failed to submit review');
+
+      const newReview = await response.json();
+      addReviewToDOM(newReview);
+      e.target.reset();
+      resetStarRating();
+    } catch (error) {
+      console.error('Error submitting review:', error);
+    }
+  });
+</script>
+
+<script>
+  function addReviewToDOM(review) {
+    const reviewContainer = document.querySelector('.main-book-reviews');
+    const reviewCard = document.createElement('div');
+    reviewCard.className = 'main-book-review-card';
+
+    // Create the review card's HTML
+    reviewCard.innerHTML = `
+    <div class="review-card-header">
+      <div class="review-author-info">
+        <span class="review-author">${review.name}</span>
+        <span class="review-category">Reader</span>
+      </div>
+      <div class="review-info">
+        <span class="review-chapter">Chapter ${review.chapter_no}</span>
+        <span class="review-time">${new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+      </div>
+    </div>
+    <div class="review-star"></div>
+    <div class="review-content">
+      <p>${review.review}</p>
+    </div>
+    <div class="review-actions">
+      <div class="reply-btn-container">
+        <i class="fa-solid fa-comments"></i>
+        <button class="reply-btn">Reply</button>
+      </div>
+      <div class="like-btn-container">
+        <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+        <span class="like-count">0</span>
+      </div>
+    </div>
+  `;
+
+    // Generate stars
+    const starContainer = reviewCard.querySelector('.review-star');
+    for (let i = 0; i < 5; i++) {
+      const star = document.createElement('i');
+      star.className = 'fa-solid fa-star';
+      if (i < review.stars) {
+        star.style.color = '#ff9c1a';
+      } else {
+        star.style.color = '#a1a3b3';
+      }
+      starContainer.appendChild(star);
+    }
+
+    reviewContainer.prepend(reviewCard);
+  }
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const reviewLikeButtons = document.querySelectorAll('.like-btn-container[data-review-s-no]');
+    reviewLikeButtons.forEach(button => {
+      button.addEventListener('click', async (event) => {
+        if (!event.target.closest('.like-btn')) return;
+
+        const s_no = button.dataset.reviewSNo;
+
+        if (!s_no) {
+          console.error('No s_no found');
+          return;
+        }
+
+        try {
+          const response = await fetch(`/toggle-review-like/${s_no}`, {
+            method: 'POST'
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            const likeCountElement = button.querySelector('.like-count');
+            likeCountElement.textContent = data.likes;
+
+            button.classList.toggle('liked', data.liked);
+          } else {
+            alert(data.message || 'Error toggling like');
+          }
+        } catch (error) {
+          console.error('Error toggling review like:', error);
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle the "Reply" button click for comments
+    document.querySelectorAll('.reply-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const reviewId = this.getAttribute('data-review-s_no');
+        const formId = `reply-form-${reviewId}`;
+        const replyForm = document.getElementById(formId);
+
+        replyForm.classList.toggle('show');
+      });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.reply-form').forEach(form => {
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        const reviewSNo = form.closest('.reply-form-container').dataset.reviewSNo;
+        const formData = new FormData(form);
+        formData.append('review_s_no', reviewSNo);
+
+        try {
+          const response = await fetch('/post-review-reply', {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Handle reply success
+            const newReplyHTML = `
+            <div class="reply">
+              <div class="reply-container">
+                <div class="reply-header">
+                  <span class="reply-author">${data.reply.name}</span>
+                  <span class="reply-time">${new Date(data.reply.created_at).toLocaleDateString()}</span>
+                </div>
+                <div class="reply-content">
+                  <p>${data.reply.content}</p>
+                </div>
+                <div class="reply-actions">
+                  <div class="like-btn-container" data-reply-id="${data.reply.id}">
+                    <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+                    <span class="like-count">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+            const repliesContainer = form.closest('.main-book-review-card').querySelector('.replies');
+            repliesContainer.insertAdjacentHTML('beforeend', newReplyHTML);
+            form.reset();
+          } else {
+            alert(data.message || 'Error posting reply.');
+          }
+        } catch (error) {
+          console.error('Error submitting reply:', error);
+          alert('Something went wrong. Please try again later.');
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const replyLikeButtons = document.querySelectorAll('.like-btn-container[data-reply-id]');
+
+  replyLikeButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      if (!event.target.closest('.like-btn')) return;
+
+      const replyId = button.dataset.replyId;
+
+      if (!replyId) {
+        console.error('No reply ID found');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/toggle-review-reply-like/${replyId}`, {
+          method: 'POST'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          const likeCountElement = button.querySelector('.like-count');
+          likeCountElement.textContent = data.likes;
+
+          button.classList.toggle('liked', data.liked);
+        } else {
+          alert(data.message || 'Error toggling like');
+        }
+      } catch (error) {
+        console.error('Error toggling reply like:', error);
+      }
+    });
+  });
+});
+</script>

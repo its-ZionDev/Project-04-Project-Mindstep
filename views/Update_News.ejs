@@ -1,0 +1,157 @@
+<%- include('partials/header')%>
+
+<section class="main">
+  <div class="main-container">
+    <h1 class="com-title"><%= update.title %></h1>
+    <img src="<%= update.image %>" alt="Community News Image" class="com-news-img">
+    <div class="com-news-content">
+      <p><%= update.content %></p>
+    </div>
+    <div class="com-comments-container">
+      <h2 class="com-subtitle">Share your thoughts with the fellow Menders</h2>
+      <form id="comment-form">
+        <div class="comment-group">
+          <input type="text" id="name" name="name" placeholder="Your Name" maxlength="20" required>
+        </div>
+        <div class="comment-group">
+          <textarea id="content" name="content" placeholder="Leave a comment with us..." required></textarea>
+        </div>
+        <button type="submit" class="comment-btn">Comment</button>
+      </form>
+    </div>
+    <div id="comments-container" class="comments-container com-comments hidden">
+      <% if (comments && comments.length > 0) { %>
+      <% comments.forEach(comment => { %>
+      <div class="comment" id="comment-<%= comment.id %>">
+        <div class="comment-container">
+          <div class="comment-header">
+            <span class="comment-author"><%= comment.name %></span>
+            <span class="comment-time">
+              <%= new Date(comment.created_at).toLocaleDateString('en-US', {
+          month: 'short',
+          day: '2-digit',
+          year: 'numeric'
+        }) %>
+            </span>
+          </div>
+          <div class="comment-content">
+            <p><%= comment.content %></p>
+          </div>
+          <div class="comment-actions">
+            <div class="like-btn-container <%= comment.userHasLiked ? 'liked' : '' %>" data-comment-id="<%= comment.id %>">
+              <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+              <span class="like-count"><%= comment.likes %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+      <% } else { %>
+      <p class="no-comments">No comments yet. Be the first to share your thoughts!</p>
+      <% } %>
+    </div>
+    <div class="load-comments-btn-container">
+      <button id="load-comments-btn" class="load-comments-btn">Load Comments</button>
+    </div>
+</section>
+
+<%- include('partials/footer')%>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const loadCommentsBtn = document.getElementById('load-comments-btn');
+    const commentsContainer = document.getElementById('comments-container');
+
+    if (loadCommentsBtn && commentsContainer) {
+      loadCommentsBtn.addEventListener('click', () => {
+        // Toggle visibility of comments
+        commentsContainer.classList.toggle('hidden');
+
+        // Update button text based on visibility
+        if (commentsContainer.classList.contains('hidden')) {
+          loadCommentsBtn.textContent = 'Load Comments';
+        } else {
+          loadCommentsBtn.textContent = 'Hide Comments';
+        }
+      });
+    }
+  });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const commentForm = document.getElementById('comment-form');
+  const postId = "<%= update.s_no %>"; 
+
+  commentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const content = document.getElementById('content').value;
+    console.log(name, content, postId);
+
+    // Check if the fields are not empty
+    if (!name || !content) {
+      alert('Please fill out all fields');
+      return;
+    }
+
+    // Prepare the comment data for the POST request
+    const commentData = {
+      name,
+      content,
+      post_id: postId, // Ensure the post_id is correctly included
+    };
+
+    try {
+      const response = await fetch('/post-update-comment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentData), // Send the data as JSON
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        commentForm.reset(); // Reset the form if the comment is posted successfully
+        updateComments(data.comment); // Update the UI with the new comment
+      } else {
+        alert(data.message || 'Error posting comment');
+      }
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      alert('An error occurred while posting your comment.');
+    }
+  });
+});
+
+// Function to update the UI with the new comment
+function updateComments(newComment) {
+  const commentContainer = document.getElementById('comments-container');
+
+  const commentElement = document.createElement('div');
+  commentElement.classList.add('comment');
+  commentElement.innerHTML = `
+    <div class="comment-header">
+      <span class="comment-author">${newComment.name}</span>
+      <span class="comment-time">${new Date(newComment.created_at).toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+      })}</span>
+    </div>
+    <div class="comment-content">
+      <p>${newComment.content}</p>
+    </div>
+    <div class="comment-actions">
+      <div class="like-btn-container" data-comment-id="${newComment.s_no}">
+        <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+        <span class="like-count">${newComment.likes}</span>
+      </div>
+    </div>
+  `;
+  commentContainer.prepend(commentElement); 
+}
+</script>

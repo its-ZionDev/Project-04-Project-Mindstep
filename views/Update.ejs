@@ -1,0 +1,73 @@
+<%- include('partials/header')%>
+<section class="main">
+  <div class="main-container">
+    <h1 class="com-title">Welcome to Project Mindstep's Community Updates and News</h1>
+    <p class="com-subtext">Find the latest updates here, including new chapters, website changes, series plans, and upcoming contests.</p>
+    <div class="com-update-container">
+      <% updates.forEach(update => { %>
+      <div class="com-update-card">
+        <div class="com-update-content">
+          <img src="<%= update.image %>" alt="Community Update Image" class="com-img">
+          <div class="com-update-info">
+            <h2 class="com-subtitle-2"><%= update.title %></h2>
+            <p><%= update.short_content %></p>
+            <a href="/Update_News?id=<%= update.s_no %>" target="_blank" class="com-link">Read More <i class="ri-arrow-right-s-fill"></i></a>
+          </div>
+        </div>
+        <div class="com-update-subcontent">
+          <span class="com-update-time">Posted on <%= new Date(update.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %></span>
+          <div class="com-actions">
+            <div class="like-btn-container <%= update.userHasLiked ? 'liked' : '' %>" data-update-id="<%= update.s_no %>">
+              <span class="like-btn"><i class="fa-solid fa-thumbs-up"></i></span>
+              <span class="likes-count"><%= update.likes %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+<%- include('partials/footer')%>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const likeButtons = document.querySelectorAll('.like-btn-container[data-update-id]');
+
+  likeButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      if (!event.target.closest('.like-btn')) return;
+
+      const updateId = button.dataset.updateId;
+
+      if (!updateId) {
+        console.error('No update ID found');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/toggle-update-like/${updateId}`, {
+          method: 'POST'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          const likesCountElement = button.querySelector('.likes-count');
+          likesCountElement.textContent = data.likes;
+
+          button.classList.toggle('liked', data.liked);
+        } else {
+          alert(data.message || 'Error toggling like');
+        }
+      } catch (error) {
+        console.error('Error toggling like:', error);
+      }
+    });
+  });
+});
+</script>

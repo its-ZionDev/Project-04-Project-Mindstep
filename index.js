@@ -44,11 +44,11 @@ client.connect((err) => {
 
 //Welcome
 app.get('/', (req, res) => {
-  res.render('welcome');
+  res.render('Welcome');
 });
 
 app.get('/welcome', (req, res) => {
-  res.render(path.join(__dirname, 'views', 'welcome.ejs'));
+  res.render('Welcome');
 });
 
 //Synopsis

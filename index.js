@@ -53,7 +53,7 @@ app.get('/welcome', (req, res) => {
 
 //Synopsis
 app.get('/synopsis', (req, res) => {
-  res.render('synopsis');
+  res.render('Synopsis');
 });
 
 //Read
@@ -68,7 +68,7 @@ app.get('/read', async (req, res) => {
       latestChapter.created_at,
     ).toLocaleDateString();
 
-    res.render('read', {
+    res.render('Read', {
       latestChapter,
       lastUpdatedDate,
     });
@@ -123,7 +123,7 @@ app.get('/book1', async (req, res) => {
     const daysAgoText =
       daysAgo === 0 ? 'today' : `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
 
-    res.render('book1', {
+    res.render('Book1', {
       totalChapters,
       latestChapter,
       daysAgoText,
@@ -183,7 +183,7 @@ app.get('/book1_user_reviews', async (req, res) => {
     );
     const chapters = chaptersResult.rows;
 
-    res.render('book1_user_reviews', {
+    res.render('Book1_user_reviews', {
       lastChapterUpdate,
       totalReviews: total_reviews,
       averageRating: parseFloat(average_rating).toFixed(1),
@@ -388,7 +388,7 @@ app.get('/book1_novel_chapters', async (req, res) => {
 
     const totalChapters = allChapters.length;
     const latestChapter = allChapters[allChapters.length - 1];
-    res.render('book1_novel_chapters', {
+    res.render('Book1_novel_chapters', {
       allChapters,
       totalChapters,
       latestChapter,
@@ -478,7 +478,7 @@ app.get('/read_chapter', async (req, res) => {
       }
     });
 
-    res.render('read_chapter', {
+    res.render('Read_chapter', {
       chapter_no: chapterRow.chapter_no,
       title: chapterRow.title,
       time: chapterRow.created_at,
@@ -642,7 +642,7 @@ app.get('/update', async (req, res) => {
       };
     });
 
-    res.render('update', { updates });
+    res.render('Update', { updates });
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
@@ -731,7 +731,7 @@ app.get('/update_news', async (req, res) => {
       return { ...comment, userHasLiked };
     });
 
-    res.render('update_news', { update, comments });
+    res.render('Update_news', { update, comments });
   } catch (error) {
     console.error('Error fetching update details or comments:', error);
     res

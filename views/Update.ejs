@@ -4,6 +4,7 @@
     <h1 class="com-title">Welcome to Project Mindstep's Community Updates and News</h1>
     <p class="com-subtext">Find the latest updates here, including new chapters, website changes, series plans, and upcoming contests.</p>
     <div class="com-update-container">
+      <% if (updates.length > 0) { %>
       <% updates.forEach(update => { %>
       <div class="com-update-card">
         <div class="com-update-content">
@@ -25,6 +26,11 @@
         </div>
       </div>
       <% }); %>
+      <% } else { %>
+      <div class="com-default-message">
+        <p>No community posts yet.</p>
+      </div>
+      <% } %>
     </div>
   </div>
 </section>

@@ -21,7 +21,9 @@
       <div class="book-subinfo-end"></div>
       <div class="book-chapter-info">
         <h3 class="book-subtitle-2"> Chapter-<%= chapter_no %>: <%= title %></h3>
-        <p><%= synopsis %></p>
+        <p>
+          <%= synopsis %>
+        </p>
       </div>
     </div>
   </div>
@@ -30,7 +32,9 @@
       <h1 class="book-title"><%= chapter.chapter_title %></h1>
       <% chapter.content.forEach(function(section) { %>
       <% if (section.type === 'text') { %>
-      <p><%= section.content %></p>
+      <p>
+        <%= section.content %>
+      </p>
       <% } else if (section.type === 'image') { %>
       <img src="<%= section.content %>" alt="Chapter Image" class="chapter-image">
       <% } %>
@@ -146,34 +150,32 @@
             form.classList.add('hidden');
 
             const newReply = `
-  <div class="reply">
-    <div class="reply-container">
-      <div class="reply-header">
-        <span class="reply-author">${data.reply.name}</span>
-        <span class="reply-time">${new Date(
-          data.reply.created_at,
-        ).toLocaleDateString('en-US', {
-          month: 'short',
-          day: '2-digit',
-          year: 'numeric',
-        })}</span>
-      </div>
-      <div class="reply-content">
-        <p>${data.reply.content}</p>
-      </div>
-      <div class="reply-actions">
-        <div class="like-btn-container ${
-          data.reply.userHasLiked ? 'liked' : ''
-        }" data-reply-id="${data.reply.id}">
-          <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
-          <span class="like-count">${
-            data.reply.likes !== undefined ? data.reply.likes : 0
-          }</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  `;
+                            <div class="reply">
+                              <div class="reply-container">
+                                <div class="reply-header">
+                                  <span class="reply-author">${data.reply.name}</span>
+                                  <span class="reply-time">${new Date(
+                                    data.reply.created_at,
+                                    ).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: '2-digit',
+                                    year: 'numeric',
+                                    })}</span>
+                                </div>
+                                <div class="reply-content">
+                                  <p>${data.reply.content}</p>
+                                </div>
+                                <div class="reply-actions">
+                                  <div class="like-btn-container ${data.reply.userHasLiked ? 'liked' : ''}" data-reply-id="${data.reply.id}">
+                                    <span class="like-btn"><i class="ri-thumb-up-fill"></i></span>
+                                    <span class="like-count">${
+                                      data.reply.likes !== undefined ? data.reply.likes : 0
+                                      }</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            `;
             const parentComment = document.getElementById(`comment-${parentId}`);
             const repliesContainer =
               parentComment.querySelector('.replies') ||

@@ -4,8 +4,6 @@ const dotenv = require('dotenv');
 const path = require('path');
 const ejs = require('ejs');
 const { Client } = require('pg');
-const pdfParse = require('pdf-parse');
-const axios = require('axios');
 const cookieParser = require('cookie-parser');
 
 dotenv.config();
@@ -60,7 +58,7 @@ app.get('/synopsis', (req, res) => {
 app.get('/read', async (req, res) => {
   try {
     const latestChapterQuery =
-      'SELECT * FROM chapterstest ORDER BY created_at DESC LIMIT 1';
+      'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
     const latestChapter = latestChapterResult.rows[0];
 
@@ -82,12 +80,12 @@ app.get('/read', async (req, res) => {
 app.get('/book1', async (req, res) => {
   try {
     const latestChapterQuery =
-      'SELECT * FROM chapterstest ORDER BY created_at DESC LIMIT 1';
+      'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
     const latestChapter = latestChapterResult.rows[0];
 
     const totalChaptersQuery =
-      'SELECT COUNT(*) AS total_chapters FROM chapterstest';
+      'SELECT COUNT(*) AS total_chapters FROM book1_chapters';
     const totalChaptersResult = await client.query(totalChaptersQuery);
     const totalChapters = parseInt(
       totalChaptersResult.rows[0].total_chapters,
@@ -105,7 +103,7 @@ app.get('/book1', async (req, res) => {
     totalViews += 1;
 
     const reviewsResult = await client.query(
-      `SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM chapterreviews`,
+      `SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,
     );
     const { total_reviews, average_rating } = reviewsResult.rows[0];
 
@@ -141,19 +139,19 @@ app.get('/book1', async (req, res) => {
 app.get('/book1_user_reviews', async (req, res) => {
   try {
     const lastChapterUpdateResult = await client.query(
-      `SELECT created_at FROM chapterstest ORDER BY created_at DESC LIMIT 1`,
+      `SELECT created_at FROM book1_chapters ORDER BY created_at DESC LIMIT 1`,
     );
     const lastChapterUpdate =
       lastChapterUpdateResult.rows[0]?.created_at || 'No updates yet';
 
     const reviewsResult = await client.query(
-      `SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM chapterreviews`,
+      `SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,
     );
     const { total_reviews, average_rating } = reviewsResult.rows[0];
 
     const reviewsQuery = `
       SELECT s_no, chapter_no, name, review, stars, likes, created_at 
-      FROM chapterreviews 
+      FROM book1_reviews 
       ORDER BY created_at DESC
     `;
     const reviewsResultWithLikes = await client.query(reviewsQuery);
@@ -165,7 +163,7 @@ app.get('/book1_user_reviews', async (req, res) => {
 
       const repliesQuery = `
         SELECT id, review_s_no, name, content, likes, created_at
-        FROM review_replies 
+        FROM book1_reviews_comments 
         WHERE review_s_no = $1
         ORDER BY created_at ASC
       `;
@@ -174,12 +172,12 @@ app.get('/book1_user_reviews', async (req, res) => {
       reviews.push({
         ...review,
         userHasLiked,
-        replies: repliesResult.rows, 
+        replies: repliesResult.rows,
       });
     }
 
     const chaptersResult = await client.query(
-      'SELECT chapter_no, title FROM chapterstest ORDER BY chapter_no',
+      'SELECT chapter_no, title FROM book1_chapters ORDER BY chapter_no',
     );
     const chapters = chaptersResult.rows;
 
@@ -201,9 +199,9 @@ app.post('/book1/reviews', async (req, res) => {
 
   try {
     const result = await client.query(
-      `INSERT INTO chapterreviews (chapter_no, parent_id, name, review, stars, likes, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *`,
-      [chapter, null, author, content, stars, 0],
+      `INSERT INTO book1_reviews (chapter_no, name, review, stars, likes, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *`,
+      [chapter, author, content, stars, 0],
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -227,7 +225,7 @@ app.post('/book1/reviews/like/:s_no', async (req, res) => {
 
     if (hasLiked) {
       const result = await client.query(
-        'UPDATE chapterreviews SET likes = likes - 1 WHERE s_no = $1 RETURNING likes',
+        'UPDATE book1_reviews SET likes = likes - 1 WHERE s_no = $1 RETURNING likes',
         [s_no],
       );
 
@@ -242,7 +240,7 @@ app.post('/book1/reviews/like/:s_no', async (req, res) => {
       res.clearCookie(cookieKey);
     } else {
       const result = await client.query(
-        'UPDATE chapterreviews SET likes = likes + 1 WHERE s_no = $1 RETURNING likes',
+        'UPDATE book1_reviews SET likes = likes + 1 WHERE s_no = $1 RETURNING likes',
         [s_no],
       );
 
@@ -265,7 +263,7 @@ app.post('/book1/reviews/like/:s_no', async (req, res) => {
 });
 
 app.post('/book1/reviews/reply', async (req, res) => {
-  const { review_s_no, parent_id, name, content } = req.body;
+  const { review_s_no, name, content } = req.body;
 
   if (!review_s_no || !name || !content) {
     return res.status(400).json({
@@ -275,24 +273,22 @@ app.post('/book1/reviews/reply', async (req, res) => {
   }
 
   const reviewSNo = parseInt(review_s_no, 10);
-  const parentId = parent_id ? parseInt(parent_id, 10) : null;
 
-  if (isNaN(reviewSNo) || (parentId !== null && isNaN(parentId))) {
+  if (isNaN(reviewSNo)) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid review_s_no or parent_id.',
+      message: 'Invalid review_s_no',
     });
   }
 
   try {
     const insertReplyQuery = `
-      INSERT INTO review_replies (review_s_no, parent_id, name, content, created_at) 
-      VALUES ($1, $2, $3, $4, NOW()) 
-      RETURNING id, review_s_no, parent_id, name, content, created_at
+      INSERT INTO book1_reviews_comments (review_s_no, name, content, created_at) 
+      VALUES ($1, $2, $3, NOW()) 
+      RETURNING id, review_s_no, name, content, created_at
     `;
     const replyResult = await client.query(insertReplyQuery, [
       reviewSNo,
-      parentId,
       name,
       content,
     ]);
@@ -328,7 +324,7 @@ app.post('/book1/reviews/reply/like/:id', async (req, res) => {
 
     if (hasLiked) {
       const result = await client.query(
-        'UPDATE review_replies SET likes = likes - 1 WHERE id = $1 RETURNING likes',
+        'UPDATE book1_reviews_comments SET likes = likes - 1 WHERE id = $1 RETURNING likes',
         [id],
       );
 
@@ -342,7 +338,7 @@ app.post('/book1/reviews/reply/like/:id', async (req, res) => {
       res.clearCookie(cookieKey);
     } else {
       const result = await client.query(
-        'UPDATE review_replies SET likes = likes + 1 WHERE id = $1 RETURNING likes',
+        'UPDATE book1_reviews_comments SET likes = likes + 1 WHERE id = $1 RETURNING likes',
         [id],
       );
 
@@ -353,7 +349,7 @@ app.post('/book1/reviews/reply/like/:id', async (req, res) => {
       }
 
       updatedLikes = result.rows[0].likes;
-      res.cookie(cookieKey, 'true', { maxAge: 365 * 24 * 60 * 60 * 1000 }); // 1 year
+      res.cookie(cookieKey, 'true', { maxAge: 365 * 24 * 60 * 60 * 1000 }); 
     }
 
     res.json({ success: true, likes: updatedLikes, liked: !hasLiked });
@@ -367,7 +363,7 @@ app.post('/book1/reviews/reply/like/:id', async (req, res) => {
 app.get('/book1_novel_chapters', async (req, res) => {
   try {
     const allChaptersQuery =
-      'SELECT * FROM chapterstest ORDER BY created_at DESC';
+      'SELECT * FROM book1_chapters ORDER BY created_at DESC';
     const allChaptersResult = await client.query(allChaptersQuery);
 
     const allChapters = allChaptersResult.rows.map((chapter) => {
@@ -403,12 +399,12 @@ app.get('/book1_novel_chapters', async (req, res) => {
 app.get('/read_chapter', async (req, res) => {
   const chapterNo = parseInt(req.query.chapter_no, 10);
 
-  if (!chapterNo) {
+  if (chapterNo === null || chapterNo === undefined || isNaN(chapterNo)) {
     return res.status(400).send('Chapter number is required.');
   }
 
   try {
-    const chapterQuery = 'SELECT * FROM chapterstest WHERE chapter_no = $1';
+    const chapterQuery = 'SELECT * FROM book1_chapters WHERE chapter_no = $1';
     const chapterResult = await client.query(chapterQuery, [chapterNo]);
 
     if (chapterResult.rows.length === 0) {
@@ -428,9 +424,9 @@ app.get('/read_chapter', async (req, res) => {
     }
 
     const prevChapterQuery =
-      'SELECT chapter_no FROM chapterstest WHERE chapter_no < $1 ORDER BY chapter_no DESC LIMIT 1';
+      'SELECT chapter_no FROM book1_chapters WHERE chapter_no < $1 ORDER BY chapter_no DESC LIMIT 1';
     const nextChapterQuery =
-      'SELECT chapter_no FROM chapterstest WHERE chapter_no > $1 ORDER BY chapter_no ASC LIMIT 1';
+      'SELECT chapter_no FROM book1_chapters WHERE chapter_no > $1 ORDER BY chapter_no ASC LIMIT 1';
 
     const [prevChapterResult, nextChapterResult] = await Promise.all([
       client.query(prevChapterQuery, [chapterNo]),
@@ -440,19 +436,11 @@ app.get('/read_chapter', async (req, res) => {
     const prevChapterNo = prevChapterResult.rows[0]?.chapter_no || null;
     const nextChapterNo = nextChapterResult.rows[0]?.chapter_no || null;
 
-    const commentsQuery = `
-  SELECT * FROM chaptercomments
-  WHERE chapter_no = $1
-  AND parent_id IS NULL  -- Get only top-level comments
-  ORDER BY created_at ASC
-`;
+    const commentsQuery = 
+      `SELECT * FROM book1_comments WHERE chapter_no = $1 AND parent_id IS NULL ORDER BY created_at ASC`;
 
-    const repliesQuery = `
-  SELECT * FROM chaptercomments
-  WHERE chapter_no = $1
-  AND parent_id IS NOT NULL  -- Get replies
-  ORDER BY created_at ASC
-`;
+    const repliesQuery = 
+      `SELECT * FROM book1_comments WHERE chapter_no = $1 AND parent_id IS NOT NULL ORDER BY created_at ASC`;
 
     const [commentsResult, repliesResult] = await Promise.all([
       client.query(commentsQuery, [chapterNo]),
@@ -468,13 +456,13 @@ app.get('/read_chapter', async (req, res) => {
     });
 
     repliesResult.rows.forEach((reply) => {
-      const userHasLiked = req.cookies[`liked_${reply.id}`] === 'true'; 
+      const userHasLiked = req.cookies[`liked_${reply.id}`] === 'true';
       const parentComment = combinedComments.find(
         (comment) => comment.id === reply.parent_id,
       );
 
       if (parentComment) {
-        parentComment.replies.push({ ...reply, userHasLiked }); 
+        parentComment.replies.push({ ...reply, userHasLiked });
       }
     });
 
@@ -486,7 +474,7 @@ app.get('/read_chapter', async (req, res) => {
       chapter: chapterContent,
       prevChapterNo,
       nextChapterNo,
-      comments: combinedComments, 
+      comments: combinedComments,
     });
   } catch (err) {
     console.error('Error fetching chapter:', err.message);
@@ -505,7 +493,7 @@ app.post('/read_chapter/comment', async (req, res) => {
 
   try {
     const result = await client.query(
-      'INSERT INTO chaptercomments (name, content, chapter_no) VALUES ($1, $2, $3) RETURNING *',
+      'INSERT INTO book1_comments (name, content, chapter_no) VALUES ($1, $2, $3) RETURNING *',
       [name, content, chapter_no],
     );
 
@@ -544,15 +532,15 @@ app.post('/read_chapter/reply', async (req, res) => {
 
   try {
     const insertReplyQuery = `
-      INSERT INTO chaptercomments (parent_id, name, content, chapter_no, created_at) 
+      INSERT INTO book1_comments (parent_id, name, content, chapter_no, created_at) 
       VALUES ($1, $2, $3, $4, NOW()) 
       RETURNING id, parent_id, name, content, chapter_no, created_at
     `;
     const replyResult = await client.query(insertReplyQuery, [
-      parentId, 
-      name, 
-      content, 
-      chapterNo, 
+      parentId,
+      name,
+      content,
+      chapterNo,
     ]);
 
     const newReply = replyResult.rows[0];
@@ -584,7 +572,7 @@ app.post('/read_chapter/like/:id', async (req, res) => {
 
     if (hasLiked) {
       const result = await client.query(
-        'UPDATE chaptercomments SET likes = likes - 1 WHERE id = $1 RETURNING likes',
+        'UPDATE book1_comments SET likes = likes - 1 WHERE id = $1 RETURNING likes',
         [id],
       );
 
@@ -599,7 +587,7 @@ app.post('/read_chapter/like/:id', async (req, res) => {
       res.clearCookie(cookieKey);
     } else {
       const result = await client.query(
-        'UPDATE chaptercomments SET likes = likes + 1 WHERE id = $1 RETURNING likes',
+        'UPDATE book1_comments SET likes = likes + 1 WHERE id = $1 RETURNING likes',
         [id],
       );
 
@@ -625,7 +613,7 @@ app.post('/read_chapter/like/:id', async (req, res) => {
 app.get('/update', async (req, res) => {
   try {
     const result = await client.query(
-      'SELECT * FROM community_updates ORDER BY created_at DESC',
+      'SELECT * FROM com_updates ORDER BY created_at DESC',
     );
 
     const updates = result.rows.map((update) => {
@@ -666,7 +654,7 @@ app.post('/update/like/:s_no', async (req, res) => {
 
     if (hasLiked) {
       const result = await client.query(
-        'UPDATE community_updates SET likes = likes - 1 WHERE s_no = $1 RETURNING likes',
+        'UPDATE com_updates SET likes = likes - 1 WHERE s_no = $1 RETURNING likes',
         [s_no],
       );
 
@@ -680,7 +668,7 @@ app.post('/update/like/:s_no', async (req, res) => {
       res.clearCookie(cookieKey);
     } else {
       const result = await client.query(
-        'UPDATE community_updates SET likes = likes + 1 WHERE s_no = $1 RETURNING likes',
+        'UPDATE com_updates SET likes = likes + 1 WHERE s_no = $1 RETURNING likes',
         [s_no],
       );
 
@@ -711,7 +699,7 @@ app.get('/update_news', async (req, res) => {
 
   try {
     const updateResult = await client.query(
-      'SELECT s_no, title, image, content FROM community_updates WHERE s_no = $1',
+      'SELECT s_no, title, image, content FROM com_updates WHERE s_no = $1',
       [id],
     );
 
@@ -722,12 +710,12 @@ app.get('/update_news', async (req, res) => {
     const update = updateResult.rows[0];
 
     const commentsResult = await client.query(
-      'SELECT s_no, post_id, name, content, likes, created_at FROM community_updates_comments WHERE post_id = $1 ORDER BY created_at DESC',
+      'SELECT s_no, post_id, name, content, likes, created_at FROM com_updates_comments WHERE post_id = $1 ORDER BY created_at DESC',
       [id],
     );
 
     const comments = commentsResult.rows.map((comment) => {
-      const userHasLiked = req.cookies[`liked_post_${comment.s_no}`] === 'true'; 
+      const userHasLiked = req.cookies[`liked_post_${comment.s_no}`] === 'true';
       return { ...comment, userHasLiked };
     });
 
@@ -751,7 +739,7 @@ app.post('/update_news/comment', async (req, res) => {
 
   try {
     const result = await client.query(
-      'INSERT INTO community_updates_comments (name, content, post_id) VALUES ($1, $2, $3) RETURNING *',
+      'INSERT INTO com_updates_comments (name, content, post_id) VALUES ($1, $2, $3) RETURNING *',
       [name, content, post_id],
     );
 
@@ -774,7 +762,7 @@ app.post('/update_news/like/:commentId', async (req, res) => {
 
   try {
     const likeResult = await client.query(
-      'SELECT likes FROM community_updates_comments WHERE s_no = $1',
+      'SELECT likes FROM com_updates_comments WHERE s_no = $1',
       [commentId],
     );
 
@@ -798,7 +786,7 @@ app.post('/update_news/like/:commentId', async (req, res) => {
     }
 
     await client.query(
-      'UPDATE community_updates_comments SET likes = $1 WHERE s_no = $2',
+      'UPDATE com_updates_comments SET likes = $1 WHERE s_no = $2',
       [updatedLikes, commentId],
     );
 
@@ -808,7 +796,6 @@ app.post('/update_news/like/:commentId', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error toggling like' });
   }
 });
-
 
 //Port
 app.listen(port, () => {

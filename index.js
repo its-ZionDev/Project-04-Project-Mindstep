@@ -799,5 +799,5 @@ app.post('/update_news/like/:commentId', async (req, res) => {
 
 //Port
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is in production mode and running on port:${port}`);
 });

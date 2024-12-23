@@ -350,6 +350,68 @@ video {
   margin: 0 auto;
 }
 
+/******************* Login Page ********************/
+.login-wrapper{
+  width: 100%;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, .2);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  border-radius: .5rem;
+  padding: 1.25rem 2.5rem;
+  margin-top: 5rem;
+  margin-bottom: 25vh;
+}
+
+.login-title{
+  font-family: var(--font-primary);
+  font-weight: var(--font-w-bold);
+  font-size: var(--font-size-05);
+  color: var(--highlight-accent);
+  text-transform: uppercase;
+  margin: 1rem 0;
+}
+
+.login-input-box{
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin: 2rem 0;
+}
+
+.login-input-box input[type='text'], 
+.login-input-box input[type='password']{
+  margin: 0;
+}
+
+.login-input-box input::placeholder{
+  color: var(--text-primary);
+}
+
+.login-input-box i{
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-size-08);
+  color: var(--text-secondary);
+  padding-bottom: 1rem;
+}
+
+.login-btn {
+  background-color: var(--highlight-accent);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-weight: var(--font-w-bold);
+  font-size: var(--font-size-08);
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
 /******************* Welcome Page ********************/
 
 .welcome-title {
@@ -473,11 +535,9 @@ video {
 }
 
 .synopsis-team-text span {
-  color: #ddd;
+  color: var(--text-secondary);
   font-size: var(--font-size-09);
   font-weight: var(--font-w-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .synopsis-team-socials {
@@ -867,6 +927,7 @@ video {
 }
 
 input[type='text'],
+input[type='password'],
 textarea {
   background: none;
   border: none;
@@ -893,6 +954,7 @@ textarea {
 }
 
 input[type='text']:focus,
+input[type='password']:focus,
 textarea:focus {
   outline: none;
 }
@@ -913,7 +975,7 @@ input:-webkit-autofill:active {
 .load-comments-btn,
 .comment-btn,
 .post-reply-btn,
-.review-btn {
+.review-btn{
   background-color: var(--highlight-accent);
   color: var(--text-primary);
   font-family: var(--font-primary);
@@ -1525,6 +1587,11 @@ input:-webkit-autofill:active {
 }
 
 @media screen and (max-width: 1200px) {
+
+  .login-container{
+    padding: 0 2rem;
+  }
+
   .welcome-title {
     font-size: var(--font-size-07);
     padding: 0 2rem;
@@ -1692,8 +1759,23 @@ input:-webkit-autofill:active {
 }
 
 @media screen and (max-width: 768px) {
+  
+  .login-container{
+    padding: 0 1rem;
+  }
+
+  .login-wrapper{
+    padding: 1.25rem 1.5rem;
+    margin-top: 5rem;
+    margin-bottom: 25vh;
+  }
+
+  .login-title{
+    font-size: var(--font-size-07);
+  }
+
   .welcome-title {
-    font-size: var(--font-size-08);
+    font-size: var(--font-size-07);
     padding: 0 1rem;
     margin: 1rem 0;
   }
@@ -1721,7 +1803,7 @@ input:-webkit-autofill:active {
   }
 
   .synopsis-title {
-    font-size: var(--font-size-08);
+    font-size: var(--font-size-07);
     padding: 0 1rem;
     margin: 1rem 0;
   }
@@ -1752,7 +1834,7 @@ input:-webkit-autofill:active {
 
   .read-title,
   .read-subtitle {
-    font-size: var(--font-size-08);
+    font-size: var(--font-size-07);
   }
 
   .read-title {
@@ -2033,7 +2115,8 @@ input:-webkit-autofill:active {
   .review-btn,
   .post-reply-btn,
   .comment-btn,
-  .load-comments-btn {
+  .load-comments-btn,
+  .login-btn {
     width: 100%;
   }
 }

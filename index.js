@@ -40,6 +40,11 @@ client.connect((err) => {
 
 //Routes
 
+//Login
+app.get('/login', (req,res) => {
+  res.render("Login");
+});
+
 //Welcome
 app.get('/', (req, res) => {
   res.render('Welcome');

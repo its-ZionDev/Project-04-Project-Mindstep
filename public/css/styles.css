@@ -652,6 +652,7 @@ video {
   display: flex;
   gap: 0.5rem;
   margin: 1rem 0;
+  flex-wrap: wrap;
 }
 
 .book-genre-tags span {
@@ -1840,7 +1841,6 @@ input:-webkit-autofill:active {
   }
 
   .book-genre .book-genre-tags {
-    flex-wrap: wrap;
     margin-bottom: 0;
   }
 
@@ -1871,10 +1871,6 @@ input:-webkit-autofill:active {
 
   .book-subinfo-card {
     padding: 2rem 1.5rem;
-  }
-
-  .book-subinfo-card .book-genre-tags {
-    flex-wrap: wrap;
   }
 
   .book-subinfo-description {

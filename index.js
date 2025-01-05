@@ -20,6 +20,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(express.json());
+app.use((req, res, next) => {
+  res.locals.metaTitle = 'Project Mindstep';
+  res.locals.metaDescription = 'When he was six years old, Asher Nephesh lost nearly everything—his parents, his home, and even his memories. All that remains are two people he holds close to his heart: his chaotic best friend, Takashi Hoso, and the ever-gentle Fleur Bellerose. But when Asher is drawn into a mysterious dreamscape, he begins to uncover unsettling truths—memories buried not just by time, but by intention…';
+  res.locals.metaImage = 'https://res.cloudinary.com/dwjs1spfk/image/upload/v1734987286/Mindstep_Cover_mzds3e.png';
+  res.locals.metaUrl = `https://readprojectmindstep.online${req.originalUrl}`;
+  next();
+});
 
 //Database Connection
 const client = new Client({
@@ -39,11 +46,6 @@ client.connect((err) => {
 });
 
 //Routes
-
-//Login
-app.get('/login', (req,res) => {
-  res.render("Login");
-});
 
 //Welcome
 app.get('/', (req, res) => {
@@ -480,6 +482,11 @@ app.get('/read_chapter', async (req, res) => {
       prevChapterNo,
       nextChapterNo,
       comments: combinedComments,
+      metaTitle: `${chapterRow.title} - Project Mindstep`,
+      metaDescription: chapterRow.synopsis,
+      metaImage:
+        'https://res.cloudinary.com/dwjs1spfk/image/upload/v1734987286/Mindstep_Cover_mzds3e.png',
+      metaUrl: `https://readprojectmindstep.online/read_chapter?chapter_no=${chapterRow.chapter_no}`,
     });
   } catch (err) {
     console.error('Error fetching chapter:', err.message);

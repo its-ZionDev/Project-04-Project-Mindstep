@@ -121,12 +121,19 @@ app.get('/book1', async (req, res) => {
       'Book1',
     ]);
 
-    const daysAgo = Math.floor(
-      (Date.now() - new Date(latestChapter.created_at).getTime()) /
-        (1000 * 60 * 60 * 24),
-    );
-    const daysAgoText =
-      daysAgo === 0 ? 'today' : `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
+    const getRelativeTime = (createdAt) => {
+      const now = Date.now();
+      const daysAgo = Math.floor((now - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
+      if (daysAgo === 0) return 'today';
+      if (daysAgo === 1) return 'yesterday';
+      if (daysAgo < 30) return `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
+      const monthsAgo = Math.floor(daysAgo / 30);
+      if (monthsAgo < 12) return `${monthsAgo} month${monthsAgo > 1 ? 's' : ''} ago`;
+      const yearsAgo = Math.floor(monthsAgo / 12);
+      return `${yearsAgo} year${yearsAgo > 1 ? 's' : ''} ago`;
+    };
+
+    const daysAgoText = getRelativeTime(latestChapter.created_at);
 
     res.render('Book1', {
       totalChapters,
@@ -373,19 +380,25 @@ app.get('/book1_novel_chapters', async (req, res) => {
       'SELECT * FROM book1_chapters ORDER BY created_at DESC';
     const allChaptersResult = await client.query(allChaptersQuery);
 
-    const allChapters = allChaptersResult.rows.map((chapter) => {
+    const getRelativeTime = (createdAt) => {
+      const now = Date.now();
       const daysAgo = Math.floor(
-        (Date.now() - new Date(chapter.created_at).getTime()) /
-          (1000 * 60 * 60 * 24),
+        (now - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24),
       );
-      return {
-        ...chapter,
-        daysAgo:
-          daysAgo === 0
-            ? 'today'
-            : `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`,
-      };
-    });
+      if (daysAgo === 0) return 'today';
+      if (daysAgo === 1) return 'yesterday';
+      if (daysAgo < 30) return `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
+      const monthsAgo = Math.floor(daysAgo / 30);
+      if (monthsAgo < 12)
+        return `${monthsAgo} month${monthsAgo > 1 ? 's' : ''} ago`;
+      const yearsAgo = Math.floor(monthsAgo / 12);
+      return `${yearsAgo} year${yearsAgo > 1 ? 's' : ''} ago`;
+    };
+
+    const allChapters = allChaptersResult.rows.map((chapter) => ({
+      ...chapter,
+      daysAgo: getRelativeTime(chapter.created_at),
+    }));
 
     allChapters.reverse();
 
@@ -484,8 +497,7 @@ app.get('/read_chapter', async (req, res) => {
       comments: combinedComments,
       metaTitle: `${chapterRow.title} - Project Mindstep`,
       metaDescription: chapterRow.synopsis,
-      metaImage:
-        'https://res.cloudinary.com/dwjs1spfk/image/upload/v1734987286/Mindstep_Cover_mzds3e.png',
+      metaImage: chapterRow.image,
       metaUrl: `https://readprojectmindstep.online/read_chapter?chapter_no=${chapterRow.chapter_no}`,
     });
   } catch (err) {

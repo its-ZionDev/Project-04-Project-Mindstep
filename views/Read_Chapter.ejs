@@ -33,7 +33,7 @@
       <% chapter.content.forEach(function(section) { %>
       <% if (section.type === 'text') { %>
       <p>
-        <%= section.content %>
+        <%- section.content %>
       </p>
       <% } else if (section.type === 'image') { %>
       <img src="<%= section.content %>" alt="Chapter Image" class="chapter-image">

@@ -64,14 +64,11 @@ app.get('/synopsis', (req, res) => {
 //Read
 app.get('/read', async (req, res) => {
   try {
-    const latestChapterQuery =
-      'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
+    const latestChapterQuery = 'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
     const latestChapter = latestChapterResult.rows[0];
 
-    const lastUpdatedDate = new Date(
-      latestChapter.created_at,
-    ).toLocaleDateString();
+    const lastUpdatedDate = new Date(latestChapter.created_at,).toLocaleDateString();
 
     res.render('Read', {
       latestChapter,
@@ -86,21 +83,15 @@ app.get('/read', async (req, res) => {
 //Book-1
 app.get('/book1', async (req, res) => {
   try {
-    const latestChapterQuery =
-      'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
+    const latestChapterQuery = 'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
     const latestChapter = latestChapterResult.rows[0];
 
-    const totalChaptersQuery =
-      'SELECT COUNT(*) AS total_chapters FROM book1_chapters';
+    const totalChaptersQuery = 'SELECT COUNT(*) AS total_chapters FROM book1_chapters';
     const totalChaptersResult = await client.query(totalChaptersQuery);
-    const totalChapters = parseInt(
-      totalChaptersResult.rows[0].total_chapters,
-      10,
-    );
+    const totalChapters = parseInt(totalChaptersResult.rows[0].total_chapters, 10,);
 
-    const getViewsQuery =
-      'SELECT total_views FROM book_views WHERE book_name = $1';
+    const getViewsQuery = 'SELECT total_views FROM book_views WHERE book_name = $1';
     const getViewsResult = await client.query(getViewsQuery, ['Book1']);
 
     let totalViews = parseInt(getViewsResult.rows[0].total_views, 10);
@@ -109,17 +100,8 @@ app.get('/book1', async (req, res) => {
     }
     totalViews += 1;
 
-    const reviewsResult = await client.query(
-      `SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,
-    );
+    const reviewsResult = await client.query(`SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,);
     const { total_reviews, average_rating } = reviewsResult.rows[0];
-
-    const updateViewsQuery =
-      'UPDATE book_views SET total_views = $1 WHERE book_name = $2';
-    const updateResult = await client.query(updateViewsQuery, [
-      totalViews,
-      'Book1',
-    ]);
 
     const getRelativeTime = (createdAt) => {
       const now = Date.now();
@@ -152,22 +134,13 @@ app.get('/book1', async (req, res) => {
 //Book-1 - User Reviews
 app.get('/book1_user_reviews', async (req, res) => {
   try {
-    const lastChapterUpdateResult = await client.query(
-      `SELECT created_at FROM book1_chapters ORDER BY created_at DESC LIMIT 1`,
-    );
-    const lastChapterUpdate =
-      lastChapterUpdateResult.rows[0]?.created_at || 'No updates yet';
+    const lastChapterUpdateResult = await client.query(`SELECT created_at FROM book1_chapters ORDER BY created_at DESC LIMIT 1`,);
+    const lastChapterUpdate = lastChapterUpdateResult.rows[0]?.created_at || 'No updates yet';
 
-    const reviewsResult = await client.query(
-      `SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,
-    );
+    const reviewsResult = await client.query(`SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,);
     const { total_reviews, average_rating } = reviewsResult.rows[0];
 
-    const reviewsQuery = `
-      SELECT s_no, chapter_no, name, review, stars, likes, created_at 
-      FROM book1_reviews 
-      ORDER BY created_at DESC
-    `;
+    const reviewsQuery = `SELECT s_no, chapter_no, name, review, stars, likes, created_at FROM book1_reviews ORDER BY created_at DESC`;
     const reviewsResultWithLikes = await client.query(reviewsQuery);
 
     const reviews = [];
@@ -175,12 +148,7 @@ app.get('/book1_user_reviews', async (req, res) => {
       const userHasLiked =
         req.cookies[`liked_review_${review.s_no}`] === 'true';
 
-      const repliesQuery = `
-        SELECT id, review_s_no, name, content, likes, created_at
-        FROM book1_reviews_comments 
-        WHERE review_s_no = $1
-        ORDER BY created_at ASC
-      `;
+      const repliesQuery = `SELECT id, review_s_no, name, content, likes, created_at FROM book1_reviews_comments WHERE review_s_no = $1 ORDER BY created_at ASC`;
       const repliesResult = await client.query(repliesQuery, [review.s_no]);
 
       reviews.push({
@@ -190,9 +158,7 @@ app.get('/book1_user_reviews', async (req, res) => {
       });
     }
 
-    const chaptersResult = await client.query(
-      'SELECT chapter_no, title FROM book1_chapters ORDER BY chapter_no',
-    );
+    const chaptersResult = await client.query('SELECT chapter_no, title FROM book1_chapters ORDER BY chapter_no',);
     const chapters = chaptersResult.rows;
 
     res.render('Book1_User_Reviews', {
@@ -376,8 +342,7 @@ app.post('/book1/reviews/reply/like/:id', async (req, res) => {
 //Book-1 - Novel Chapters List
 app.get('/book1_novel_chapters', async (req, res) => {
   try {
-    const allChaptersQuery =
-      'SELECT * FROM book1_chapters ORDER BY created_at DESC';
+    const allChaptersQuery = 'SELECT * FROM book1_chapters ORDER BY created_at DESC';
     const allChaptersResult = await client.query(allChaptersQuery);
 
     const getRelativeTime = (createdAt) => {
@@ -443,10 +408,8 @@ app.get('/read_chapter', async (req, res) => {
       }
     }
 
-    const prevChapterQuery =
-      'SELECT chapter_no FROM book1_chapters WHERE chapter_no < $1 ORDER BY chapter_no DESC LIMIT 1';
-    const nextChapterQuery =
-      'SELECT chapter_no FROM book1_chapters WHERE chapter_no > $1 ORDER BY chapter_no ASC LIMIT 1';
+    const prevChapterQuery = 'SELECT chapter_no FROM book1_chapters WHERE chapter_no < $1 ORDER BY chapter_no DESC LIMIT 1';
+    const nextChapterQuery = 'SELECT chapter_no FROM book1_chapters WHERE chapter_no > $1 ORDER BY chapter_no ASC LIMIT 1';
 
     const [prevChapterResult, nextChapterResult] = await Promise.all([
       client.query(prevChapterQuery, [chapterNo]),
@@ -456,11 +419,8 @@ app.get('/read_chapter', async (req, res) => {
     const prevChapterNo = prevChapterResult.rows[0]?.chapter_no || null;
     const nextChapterNo = nextChapterResult.rows[0]?.chapter_no || null;
 
-    const commentsQuery = 
-      `SELECT * FROM book1_comments WHERE chapter_no = $1 AND parent_id IS NULL ORDER BY created_at ASC`;
-
-    const repliesQuery = 
-      `SELECT * FROM book1_comments WHERE chapter_no = $1 AND parent_id IS NOT NULL ORDER BY created_at ASC`;
+    const commentsQuery = `SELECT * FROM book1_comments WHERE chapter_no = $1 AND parent_id IS NULL ORDER BY created_at ASC`;
+    const repliesQuery =  `SELECT * FROM book1_comments WHERE chapter_no = $1 AND parent_id IS NOT NULL ORDER BY created_at ASC`;
 
     const [commentsResult, repliesResult] = await Promise.all([
       client.query(commentsQuery, [chapterNo]),
@@ -636,9 +596,7 @@ app.post('/read_chapter/like/:id', async (req, res) => {
 //Update
 app.get('/update', async (req, res) => {
   try {
-    const result = await client.query(
-      'SELECT * FROM com_updates ORDER BY created_at DESC',
-    );
+    const result = await client.query('SELECT * FROM com_updates ORDER BY created_at DESC',);
 
     const updates = result.rows.map((update) => {
       const userHasLiked =

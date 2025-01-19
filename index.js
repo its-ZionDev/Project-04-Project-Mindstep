@@ -5,6 +5,7 @@ const path = require('path');
 const ejs = require('ejs');
 const { Client } = require('pg');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
 dotenv.config();
 
@@ -27,6 +28,14 @@ app.use((req, res, next) => {
   res.locals.metaUrl = `https://readprojectmindstep.online${req.originalUrl}`;
   next();
 });
+app.use(
+  session({
+    secret: process.env.SECRET_KEY, 
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60 * 60 * 1000 }, 
+  }),
+);
 
 //Database Connection
 const client = new Client({
@@ -83,6 +92,17 @@ app.get('/read', async (req, res) => {
 //Book-1
 app.get('/book1', async (req, res) => {
   try {
+    if (!req.session.hasVisitedBook1) {
+      const getViewsQuery = 'SELECT total_views FROM book_views WHERE book_name = $1';
+      const getViewsResult = await client.query(getViewsQuery, ['Book1']);
+
+      let totalViews = parseInt(getViewsResult.rows[0]?.total_views, 10) || 0;
+      totalViews += 1;
+
+      const updateViewsQuery = 'UPDATE book_views SET total_views = $1 WHERE book_name = $2';
+      await client.query(updateViewsQuery, [totalViews, 'Book1']);
+    }
+
     const latestChapterQuery = 'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
     const latestChapter = latestChapterResult.rows[0];
@@ -90,15 +110,6 @@ app.get('/book1', async (req, res) => {
     const totalChaptersQuery = 'SELECT COUNT(*) AS total_chapters FROM book1_chapters';
     const totalChaptersResult = await client.query(totalChaptersQuery);
     const totalChapters = parseInt(totalChaptersResult.rows[0].total_chapters, 10,);
-
-    const getViewsQuery = 'SELECT total_views FROM book_views WHERE book_name = $1';
-    const getViewsResult = await client.query(getViewsQuery, ['Book1']);
-
-    let totalViews = parseInt(getViewsResult.rows[0].total_views, 10);
-    if (isNaN(totalViews)) {
-      totalViews = 0;
-    }
-    totalViews += 1;
 
     const reviewsResult = await client.query(`SELECT COUNT(*) AS total_reviews, COALESCE(AVG(stars), 0) AS average_rating FROM book1_reviews`,);
     const { total_reviews, average_rating } = reviewsResult.rows[0];
@@ -121,7 +132,7 @@ app.get('/book1', async (req, res) => {
       totalChapters,
       latestChapter,
       daysAgoText,
-      totalViews,
+      totalViews: req.session.hasVisitedBook1 ? parseInt(await client.query('SELECT total_views FROM book_views WHERE book_name = $1', ['Book1']).then(res => res.rows[0].total_views)) : totalViews, 
       totalReviews: total_reviews,
       averageRating: parseFloat(average_rating).toFixed(1),
     });

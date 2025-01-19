@@ -92,16 +92,23 @@ app.get('/read', async (req, res) => {
 //Book-1
 app.get('/book1', async (req, res) => {
   try {
-    if (!req.session.hasVisitedBook1) {
-      const getViewsQuery = 'SELECT total_views FROM book_views WHERE book_name = $1';
-      const getViewsResult = await client.query(getViewsQuery, ['Book1']);
+    let totalViews;
+     if (!req.session.hasVisitedBook1) {
+       const getViewsQuery = 'SELECT total_views FROM book_views WHERE book_name = $1';
+       const getViewsResult = await client.query(getViewsQuery, ['Book1']);
 
-      let totalViews = parseInt(getViewsResult.rows[0]?.total_views, 10) || 0;
-      totalViews += 1;
+       totalViews = parseInt(getViewsResult.rows[0]?.total_views, 10) || 0;
+       totalViews += 1;
 
-      const updateViewsQuery = 'UPDATE book_views SET total_views = $1 WHERE book_name = $2';
-      await client.query(updateViewsQuery, [totalViews, 'Book1']);
-    }
+       const updateViewsQuery = 'UPDATE book_views SET total_views = $1 WHERE book_name = $2';
+       await client.query(updateViewsQuery, [totalViews, 'Book1']);
+
+       req.session.hasVisitedBook1 = true;
+     } else {
+       const getViewsQuery = 'SELECT total_views FROM book_views WHERE book_name = $1';
+       const getViewsResult = await client.query(getViewsQuery, ['Book1']);
+       totalViews = parseInt(getViewsResult.rows[0]?.total_views, 10) || 0;
+     }
 
     const latestChapterQuery = 'SELECT * FROM book1_chapters ORDER BY created_at DESC LIMIT 1';
     const latestChapterResult = await client.query(latestChapterQuery);
@@ -132,7 +139,7 @@ app.get('/book1', async (req, res) => {
       totalChapters,
       latestChapter,
       daysAgoText,
-      totalViews: req.session.hasVisitedBook1 ? parseInt(await client.query('SELECT total_views FROM book_views WHERE book_name = $1', ['Book1']).then(res => res.rows[0].total_views)) : totalViews, 
+      totalViews, 
       totalReviews: total_reviews,
       averageRating: parseFloat(average_rating).toFixed(1),
     });
